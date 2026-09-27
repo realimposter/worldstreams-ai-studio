@@ -227,6 +227,257 @@ async function discoverWithGemini(query, worlds) {
   return parseGeminiResponse(response.text || '', worlds);
 }
 
+function localDirectorBranch(world, choice, sceneNumber) {
+  const isAlt = sceneNumber % 2 === 0;
+  return {
+    sceneNumber,
+    sceneTitle: isAlt ? 'Critical Threshold' : 'The Divergent Path',
+    narrativeEvent: choice
+      ? `Acting on "${choice}", the sequence shifts rapidly. Ambient alarms echo across the perimeter as the environment reconfigures to the audience directive.`
+      : `The stream initializes. The world stands suspended at a critical narrative crossroads awaiting the viewer collective's mandate.`,
+    videoGenerationPrompt: `Cinematic wide angle, ${world.title} aesthetic, atmospheric volumetric smoke, neon edge lighting, hyperrealistic camera tracking forward, seamless loop, 8k resolution.`,
+    tensionLevel: isAlt ? 'critical' : 'moderate',
+    audiencePoll: {
+      question: isAlt ? 'Containment breach detected. Which protocol should be executed?' : 'A mysterious transmission surfaces. How should the team proceed?',
+      choices: [
+        { id: 'opt_1', text: isAlt ? 'Purge the outer quadrant and vent atmosphere' : 'Decode the raw encrypted audio stream', votesPercent: 58 },
+        { id: 'opt_2', text: isAlt ? 'Deploy emergency shielding and hold position' : 'Reroute auxiliary power to offensive sensors', votesPercent: 42 },
+      ],
+    },
+    audienceChat: [
+      { user: 'neo_spectator', message: 'VOTE 1 DO NOT HESITATE!', sentiment: 'tense' },
+      { user: 'valkyrie_88', message: 'If we vent the quadrant we lose the archive!!', sentiment: 'excited' },
+      { user: 'quantum_coder', message: 'Look at the sensor readings in the background...', sentiment: 'analytical' },
+    ],
+    directorNotes: 'Gemini pacing engine maintained narrative tension at 84% based on viewer vote velocity.',
+  };
+}
+
+async function handleDirectorBranch(request, response) {
+  try {
+    const body = await readJsonBody(request);
+    const world = body?.world || {};
+    const choice = cleanText(body?.choice, 200);
+    const sceneNumber = Number.isFinite(body?.sceneNumber) ? body.sceneNumber : 1;
+    const history = Array.isArray(body?.history) ? body.history.slice(-4) : [];
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      sendJson(response, 200, localDirectorBranch(world, choice, sceneNumber));
+      return;
+    }
+
+    try {
+      const { GoogleGenAI } = await import('@google/genai');
+      const ai = new GoogleGenAI({ apiKey });
+      const prompt = [
+        'You are the real-time AI World Director for an interactive streaming video world.',
+        `World Title: "${cleanText(world.title, 100)}"`,
+        `World Setting: "${cleanText(world.description, 300)}"`,
+        `Current Scene: ${sceneNumber}`,
+        `Viewer Directive / Choice: "${choice || 'Stream Launch'}"`,
+        `Recent Sequence Log: ${JSON.stringify(history)}`,
+        '',
+        'Generate the next continuous scene development as strict JSON:',
+        '{',
+        '  "sceneTitle": "Short cinematic scene title",',
+        '  "narrativeEvent": "2-3 vivid sentences describing what happens right now on the stream based on the viewer choice.",',
+        '  "videoGenerationPrompt": "Detailed video generation prompt (e.g. Veo style camera direction, lens, lighting, visual dynamics)",',
+        '  "tensionLevel": "low | moderate | critical | chaotic",',
+        '  "audiencePoll": {',
+        '    "question": "Urgent branching dilemma question for viewers",',
+        '    "choices": [',
+        '      {"id": "c1", "text": "Specific action choice", "votesPercent": 61},',
+        '      {"id": "c2", "text": "Alternative risky choice", "votesPercent": 39}',
+        '    ]',
+        '  },',
+        '  "audienceChat": [',
+        '    {"user": "gamer_handle", "message": "short live stream reaction", "sentiment": "excited | tense | surprised | analytical"}',
+        '  ],',
+        '  "directorNotes": "One sentence explaining director pacing strategy."',
+        '}',
+      ].join('\n');
+
+      const geminiResult = await ai.models.generateContent({
+        model: geminiModel,
+        contents: prompt,
+        config: {
+          responseMimeType: 'application/json',
+          temperature: 0.6,
+        },
+      });
+
+      const cleaned = cleanText(geminiResult.text || '', 10_000)
+        .replace(/^```(?:json)?\s*/i, '')
+        .replace(/\s*```$/i);
+      const parsed = JSON.parse(cleaned);
+
+      sendJson(response, 200, {
+        sceneNumber,
+        sceneTitle: cleanText(parsed.sceneTitle, 100) || `Scene ${sceneNumber}`,
+        narrativeEvent: cleanText(parsed.narrativeEvent, 500) || 'The scene advances according to audience direction.',
+        videoGenerationPrompt: cleanText(parsed.videoGenerationPrompt, 600) || 'Cinematic tracking shot, dramatic lighting, 8k resolution.',
+        tensionLevel: ['low', 'moderate', 'critical', 'chaotic'].includes(parsed.tensionLevel) ? parsed.tensionLevel : 'moderate',
+        audiencePoll: {
+          question: cleanText(parsed?.audiencePoll?.question, 200) || 'What should the world do next?',
+          choices: Array.isArray(parsed?.audiencePoll?.choices) && parsed.audiencePoll.choices.length >= 2
+            ? parsed.audiencePoll.choices.slice(0, 3).map((item, idx) => ({
+                id: cleanText(item.id, 20) || `c_${idx}`,
+                text: cleanText(item.text, 120),
+                votesPercent: Number.isFinite(item.votesPercent) ? Math.round(item.votesPercent) : 50,
+              }))
+            : [
+                { id: 'c1', text: 'Advance through the main corridor', votesPercent: 55 },
+                { id: 'c2', text: 'Take the hidden bypass tunnel', votesPercent: 45 },
+              ],
+        },
+        audienceChat: Array.isArray(parsed.audienceChat)
+          ? parsed.audienceChat.slice(0, 4).map(item => ({
+              user: cleanText(item.user, 30) || 'viewer',
+              message: cleanText(item.message, 120) || 'hype!',
+              sentiment: item.sentiment || 'excited',
+            }))
+          : [
+              { user: 'stream_watcher', message: 'Chat is going crazy right now', sentiment: 'excited' },
+              { user: 'alpha_pilot', message: 'Option 1 all the way!!', sentiment: 'tense' },
+            ],
+        directorNotes: cleanText(parsed.directorNotes, 200) || 'Real-time narrative branch directed by Gemini.',
+      });
+    } catch (geminiError) {
+      console.warn('[director] Gemini error, using fallback:', geminiError.message);
+      sendJson(response, 200, localDirectorBranch(world, choice, sceneNumber));
+    }
+  } catch (error) {
+    sendJson(response, 400, { error: error instanceof Error ? error.message : 'Invalid request' });
+  }
+}
+
+function localArchitectWorld(concept) {
+  const slug = `world-${Date.now().toString(36)}`;
+  return {
+    world: {
+      publicId: slug,
+      title: `${cleanText(concept, 25) || 'Nexus'} Chronicles`,
+      worldName: 'Aetheria Prime',
+      description: `A live-rendered world built around ${cleanText(concept, 80)}. Audience decisions govern the survival and evolution of the ecosystem in continuous AI video.`,
+      type: 'survival',
+      status: 'live',
+      viewerCount: 1420,
+      thumbnailUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
+      worldLogoUrl: '',
+      demoVideoEnabled: false,
+      demoVideoUrl: '',
+      isCustom: true,
+      visualStyle: 'High-contrast neo-noir anamorphic lighting with volumetric mist.',
+      audienceMechanics: 'Live voting rounds every 45 seconds with critical choice overrides.',
+    },
+    loreOverview: 'Engineered at the intersection of AI synthetic video and audience collective agency.',
+    visualStyle: 'High-contrast neo-noir anamorphic lighting with volumetric mist.',
+    audienceRules: 'Live voting rounds every 45 seconds with critical choice overrides.',
+    firstSceneDilemma: 'The perimeter barrier begins to fluctuate. Do the citizens evacuate or fortify?',
+  };
+}
+
+async function handleArchitectCreate(request, response) {
+  try {
+    const body = await readJsonBody(request);
+    const concept = cleanText(body?.concept, 400);
+    const genre = cleanText(body?.genre, 60);
+
+    if (!concept || concept.length < 3) {
+      sendJson(response, 400, { error: 'Please provide a concept for your world.' });
+      return;
+    }
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      sendJson(response, 200, localArchitectWorld(concept));
+      return;
+    }
+
+    try {
+      const { GoogleGenAI } = await import('@google/genai');
+      const ai = new GoogleGenAI({ apiKey });
+      const prompt = [
+        'You are the Gemini World Architect for an interactive video streaming platform (Worldstreams).',
+        `Creator Concept: "${concept}"`,
+        `Genre / Vibe: "${genre || 'cinematic speculative'}"`,
+        '',
+        'Architect a complete, broadcast-ready interactive AI video world as strict JSON:',
+        '{',
+        '  "publicId": "slug-name-no-spaces-min-4-chars",',
+        '  "title": "Short Punchy Title (2-4 words)",',
+        '  "worldName": "Fictional In-Universe Setting Name",',
+        '  "description": "2-3 compelling sentences describing the world and audience agency.",',
+        '  "type": "show | game | survival | mystery | multiplayer",',
+        '  "visualStyle": "Detailed cinematic visual style (lenses, lighting, palette, atmosphere)",',
+        '  "audienceMechanics": "Rules for how live viewers steer the story",',
+        '  "firstSceneDilemma": "The opening high-stakes decision presented to viewers",',
+        '  "loreOverview": "2 paragraphs describing the world history, conflict, and key factions."',
+        '}',
+      ].join('\n');
+
+      const geminiResult = await ai.models.generateContent({
+        model: geminiModel,
+        contents: prompt,
+        config: {
+          responseMimeType: 'application/json',
+          temperature: 0.7,
+        },
+      });
+
+      const cleaned = cleanText(geminiResult.text || '', 10_000)
+        .replace(/^```(?:json)?\s*/i, '')
+        .replace(/\s*```$/i);
+      const parsed = JSON.parse(cleaned);
+
+      const rawSlug = cleanText(parsed.publicId, 40).toLowerCase().replace(/[^a-z0-9_-]/g, '-').replace(/-+/g, '-');
+      const publicId = rawSlug.length >= 4 ? rawSlug : `world-${Date.now().toString(36)}`;
+      const title = cleanText(parsed.title, 80) || 'Untitled Worldstream';
+      const description = cleanText(parsed.description, 350) || concept;
+
+      const curatedCovers = [
+        'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=800&q=80',
+      ];
+      const randomCover = curatedCovers[Math.floor(Math.random() * curatedCovers.length)];
+
+      const world = {
+        publicId,
+        title,
+        worldName: cleanText(parsed.worldName, 80) || title,
+        description,
+        type: ['show', 'game', 'survival', 'mystery', 'multiplayer'].includes(parsed.type) ? parsed.type : 'show',
+        status: 'live',
+        viewerCount: Math.floor(Math.random() * 2500) + 400,
+        thumbnailUrl: randomCover,
+        worldLogoUrl: '',
+        demoVideoEnabled: false,
+        demoVideoUrl: '',
+        isCustom: true,
+        visualStyle: cleanText(parsed.visualStyle, 300),
+        audienceMechanics: cleanText(parsed.audienceMechanics, 300),
+      };
+
+      sendJson(response, 200, {
+        world,
+        loreOverview: cleanText(parsed.loreOverview, 1000),
+        visualStyle: cleanText(parsed.visualStyle, 300),
+        audienceRules: cleanText(parsed.audienceMechanics, 300),
+        firstSceneDilemma: cleanText(parsed.firstSceneDilemma, 300),
+      });
+    } catch (geminiError) {
+      console.warn('[architect] Gemini error, using fallback:', geminiError.message);
+      sendJson(response, 200, localArchitectWorld(concept));
+    }
+  } catch (error) {
+    sendJson(response, 400, { error: error instanceof Error ? error.message : 'Invalid request' });
+  }
+}
+
 async function handleApi(request, response, url) {
   if (request.method === 'GET' && url.pathname === '/api/health') {
     sendJson(response, 200, { ok: true });
@@ -240,6 +491,16 @@ async function handleApi(request, response, url) {
       source: catalog.source,
       updatedAt: new Date(catalog.fetchedAt).toISOString(),
     });
+    return true;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/director/branch') {
+    await handleDirectorBranch(request, response);
+    return true;
+  }
+
+  if (request.method === 'POST' && url.pathname === '/api/architect/create') {
+    await handleArchitectCreate(request, response);
     return true;
   }
 
