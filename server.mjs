@@ -9,11 +9,13 @@ const directory = dirname(fileURLToPath(import.meta.url));
 const isProduction = process.env.NODE_ENV === 'production';
 const port = Number.parseInt(process.env.PORT || '3000', 10);
 const host = process.env.HOST || '0.0.0.0';
-const catalogUrl = 'https://api.sequencer.media/v1/public/worldstreams?limit=60';
+const catalogApiBase = 'https://api.sequencer.media/v1/public/worldstreams';
+const catalogUrl = `${catalogApiBase}?limit=60`;
 const geminiModel = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
 const cacheDurationMs = 15_000;
 const maxBodyBytes = 8_192;
 const requestWindows = new Map();
+const detailCache = new Map();
 let catalogCache = { fetchedAt: 0, worlds: fallbackWorlds, source: 'cache' };
 
 const mimeTypes = {
@@ -90,6 +92,31 @@ async function loadCatalog({ force = false } = {}) {
     }
   }
   return catalogCache;
+}
+
+async function loadWorldDetail(publicId) {
+  const cached = detailCache.get(publicId);
+  if (cached && Date.now() - cached.fetchedAt < 10 * 60_000) return cached;
+  const catalog = await loadCatalog();
+  const catalogWorld = catalog.worlds.find(world => world.publicId === publicId) || null;
+  if (!catalogWorld) return null;
+
+  try {
+    const response = await fetch(`${catalogApiBase}/${encodeURIComponent(publicId)}`, {
+      signal: AbortSignal.timeout(6_000),
+    });
+    if (!response.ok) throw new Error(`World detail returned ${response.status}`);
+    const body = await response.json();
+    const world = normalizeWorld(body?.worldstream);
+    if (!world) throw new Error('World detail was invalid');
+    const result = { fetchedAt: Date.now(), world, source: 'live' };
+    detailCache.set(publicId, result);
+    return result;
+  } catch {
+    const result = { fetchedAt: Date.now(), world: catalogWorld, source: catalog.source };
+    detailCache.set(publicId, result);
+    return result;
+  }
 }
 
 function readJsonBody(request) {
@@ -490,6 +517,23 @@ async function handleApi(request, response, url) {
       worldstreams: catalog.worlds,
       source: catalog.source,
       updatedAt: new Date(catalog.fetchedAt).toISOString(),
+    });
+    return true;
+  }
+
+  const worldDetailMatch = request.method === 'GET'
+    ? url.pathname.match(/^\/api\/worldstreams\/([A-Za-z0-9_-]{4,80})$/)
+    : null;
+  if (worldDetailMatch) {
+    const detail = await loadWorldDetail(worldDetailMatch[1]);
+    if (!detail) {
+      sendJson(response, 404, { error: 'Worldstream not found.' });
+      return true;
+    }
+    sendJson(response, 200, {
+      worldstream: detail.world,
+      source: detail.source,
+      updatedAt: new Date(detail.fetchedAt).toISOString(),
     });
     return true;
   }

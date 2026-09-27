@@ -1,4 +1,5 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import FauxWorldstreamPlayer from './FauxWorldstream';
 import {
   displayViewerCount,
   sectionWorlds,
@@ -872,6 +873,14 @@ const faqs = [
     question: 'Do viewers need special hardware?',
     answer: 'No. Worldstreams render in the cloud on Google Cloud Run and stream directly to standard web browsers on desktop or mobile.',
   },
+  {
+    question: 'Do viewers need an account?',
+    answer: 'No account is needed for this experience. Select any world to open its interactive stream demo.',
+  },
+  {
+    question: 'What happens when a Worldstream is idle?',
+    answer: 'Its demo stays available with a cinematic feed, simulated audience activity, voting, prompts, and reactions.',
+  },
 ];
 
 function WorldstreamsFAQ() {
@@ -967,7 +976,7 @@ export default function App() {
     setSelectedWorld(newWorld);
   };
 
-  const openFirstFeaturedDirector = () => {
+  const openFirstFeaturedWorld = () => {
     if (sections.featured.length > 0) {
       setSelectedWorld(sections.featured[0]);
     } else if (worlds.length > 0) {
@@ -986,24 +995,24 @@ export default function App() {
             <div className="hero-glow hero-glow-two" />
             <div className="hero-heading">
               <h1>WORLDSTREAMS</h1>
-              <p>INTERACTIVE AI VIDEO WORLDS DIRECTED BY GEMINI</p>
+              <p>INTERACTIVE AI VIDEO WORLDS SHAPED BY YOU</p>
             </div>
             <div className="hero-rail-wrap">
               {loading ? <LoadingRail /> : <Rail worlds={sections.featured} featured onOpen={setSelectedWorld} />}
             </div>
             <p className="hero-description">
-              Continuous synthetic video worlds generated live and steered in real time.<br />
-              Enter the <strong>Gemini Director Booth</strong> to branch storylines, vote with audiences, or architect your own world.
+              Explore cinematic AI video worlds and shape what happens next.<br />
+              Vote with the audience, write a prompt, react live, or use Gemini to architect your own world.
             </p>
 
             <div className="hero-cta-cluster">
               <button
                 type="button"
                 className="hero-primary-btn"
-                onClick={openFirstFeaturedDirector}
+                onClick={openFirstFeaturedWorld}
               >
                 <SparkIcon size={16} />
-                <span>Enter Director Booth</span>
+                <span>Enter a Worldstream</span>
               </button>
               <button
                 type="button"
@@ -1044,7 +1053,13 @@ export default function App() {
       </div>
 
       {selectedWorld ? (
-        <PlayerModal world={selectedWorld} onClose={() => setSelectedWorld(null)} />
+        <FauxWorldstreamPlayer
+          key={selectedWorld.publicId}
+          world={selectedWorld}
+          worlds={worlds}
+          onSelectWorld={setSelectedWorld}
+          onClose={() => setSelectedWorld(null)}
+        />
       ) : null}
 
       <WorldArchitectModal

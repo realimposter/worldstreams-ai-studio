@@ -1,8 +1,10 @@
 # Worldstreams
 
-Worldstreams is a responsive discovery experience for interactive AI video worlds. It loads the public world catalog from the Sequencer API, keeps a small offline fallback, and hands each selection to its live public player on worldstreams.ai.
+Worldstreams is a responsive discovery experience for interactive AI video worlds. It loads the public world catalog from the Sequencer API and opens every world in an interactive simulated stream with demo media, audience choices, prompts, reactions, and chat.
 
 Gemini powers the world finder. Visitors describe a mood, story, or place, and Gemini recommends three experiences from the live catalog.
+
+The stream interactions run locally for demonstration and never write to production. Public catalog details and available demo media remain externally hosted.
 
 ## Run locally
 

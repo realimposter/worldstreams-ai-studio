@@ -41,6 +41,13 @@ try {
     throw new Error('Catalog endpoint failed.');
   }
 
+  const firstWorld = catalog.worldstreams[0];
+  const detailResponse = await fetch(`${baseUrl}/api/worldstreams/${encodeURIComponent(firstWorld.publicId)}`);
+  const detail = await detailResponse.json();
+  if (!detailResponse.ok || detail.worldstream?.publicId !== firstWorld.publicId) {
+    throw new Error('World detail endpoint failed.');
+  }
+
   const discoveryResponse = await fetch(`${baseUrl}/api/discover`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -51,7 +58,7 @@ try {
     throw new Error('Discovery fallback failed.');
   }
 
-  console.log(`Smoke test passed with ${catalog.worldstreams.length} worlds.`);
+  console.log(`Smoke test passed with ${catalog.worldstreams.length} worlds and an interactive stream detail.`);
 } finally {
   child.kill('SIGTERM');
 }
