@@ -1,0 +1,8 @@
+{
+  "name": "Worldstreams",
+  "description": "Explore interactive AI video worlds that respond to the audience in real time.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

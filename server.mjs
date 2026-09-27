@@ -7,10 +7,10 @@ import { fallbackWorlds } from './shared/fallback-worlds.mjs';
 
 const directory = dirname(fileURLToPath(import.meta.url));
 const isProduction = process.env.NODE_ENV === 'production';
-const port = Number.parseInt(process.env.PORT || '8080', 10);
+const port = Number.parseInt(process.env.PORT || '3000', 10);
 const host = process.env.HOST || '0.0.0.0';
 const catalogUrl = 'https://api.sequencer.media/v1/public/worldstreams?limit=60';
-const geminiModel = process.env.GEMINI_MODEL || 'gemini-3-flash-preview';
+const geminiModel = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
 const cacheDurationMs = 15_000;
 const maxBodyBytes = 8_192;
 const requestWindows = new Map();
@@ -311,7 +311,7 @@ let vite;
 if (!isProduction) {
   const { createServer: createViteServer } = await import('vite');
   vite = await createViteServer({
-    server: { middlewareMode: true },
+    server: { middlewareMode: true, allowedHosts: true },
     appType: 'spa',
   });
 }
