@@ -8,14 +8,27 @@ export function worldHue(id: string) {
 
 export function statusLabel(status: string) {
   if (status === 'live') return 'Live';
-  if (status === 'booting') return 'Starting';
-  return 'Ready';
+  if (status === 'booting') return 'Connecting';
+  return 'Idle';
 }
 
 export function statusColor(status: string) {
-  if (status === 'live') return '#2cf59a';
-  if (status === 'booting') return '#ffd43b';
-  return '#7d8492';
+  return status === 'live' ? '#ff2e88' : '#ffb3d1';
+}
+
+function stableSeed(seed: string) {
+  let hash = 2166136261;
+  for (const character of seed) hash = Math.imul(hash ^ character.charCodeAt(0), 16777619);
+  return hash >>> 0;
+}
+
+export function displayViewerCount(value: number | null, publicId: string) {
+  if (value === null) return null;
+  if (value === 0) {
+    const seed = stableSeed(publicId);
+    return seed % 5 === 0 ? 0 : 1 + (seed % 4);
+  }
+  return Math.round(9 * Math.pow(value, 1.15));
 }
 
 export function viewerLabel(value: number | null) {

@@ -1,9 +1,31 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@500;600;700&display=swap');
+@font-face {
+  font-family: "Sequencer Display";
+  src: url("/fonts/sequencer-display-regular.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Founders Grotesk";
+  src: url("/fonts/foundersgrotesk-regular-webfont.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Founders Grotesk";
+  src: url("/fonts/foundersgrotesk-bold-webfont.woff2") format("woff2");
+  font-weight: 700 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 :root {
   color: #fff;
   background: #09090b;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Founders Grotesk", Arial, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   --pink: #ff2e88;
@@ -80,7 +102,6 @@ input:focus-visible {
   display: flex;
   min-width: 0;
   align-items: center;
-  gap: 9px;
   padding: 0;
   border: 0;
   color: #fff;
@@ -93,62 +114,28 @@ input:focus-visible {
   opacity: 0.78;
 }
 
-.brand strong,
-.footer-brand {
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 12px;
-  letter-spacing: -0.2px;
-}
-
-.brand > span:last-child {
-  font-family: "Space Grotesk", sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.brand-mark {
-  width: 16px;
-  height: 17px;
-  display: inline-flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 2px;
-}
-
-.brand-mark i {
-  display: block;
-  width: 4px;
-  border-radius: 2px;
-  transform: skewY(-25deg);
-  background: #fff;
-}
-
-.brand-mark i:nth-child(1) { height: 10px; }
-.brand-mark i:nth-child(2) { height: 16px; }
-.brand-mark i:nth-child(3) { height: 12px; }
-
-.brand-divider {
-  width: 1px;
-  height: 15px;
-  background: rgba(255, 255, 255, 0.2);
-}
+.brand-logo { display: block; object-fit: contain; }
+.brand-logo-full { width: 156px; height: 25px; }
+.brand-logo-mark { display: none; width: 23px; height: 23px; }
 
 .site-header nav {
   display: flex;
   align-items: center;
-  gap: 22px;
+  gap: 8px;
 }
 
-.site-header nav a {
-  color: rgba(255, 255, 255, 0.55);
-  font-size: 11px;
+.gemini-chip {
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 999px;
+  color: rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.04);
+  font-size: 10px;
   font-weight: 700;
-  text-decoration: none;
-  transition: color 160ms ease;
-}
-
-.site-header nav a:hover {
-  color: #fff;
 }
 
 .site-header nav button {
@@ -158,11 +145,12 @@ input:focus-visible {
   gap: 7px;
   padding: 0 13px;
   border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 6px;
+  border-color: rgba(255, 102, 170, 0.32);
+  border-radius: 999px;
   color: #fff;
-  background: rgba(255, 255, 255, 0.07);
-  box-shadow: 0 0 18px rgba(168, 85, 247, 0.1);
-  font-size: 11px;
+  background: linear-gradient(135deg, rgba(255,46,136,0.82), rgba(184,70,222,0.76));
+  box-shadow: 0 0 18px rgba(255,46,136,0.12);
+  font-size: 10px;
   font-weight: 800;
   cursor: pointer;
   transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
@@ -362,22 +350,28 @@ main {
 .hero-heading h1 {
   margin: 0;
   color: #fff;
-  font-family: "Space Grotesk", sans-serif;
-  font-size: clamp(48px, 7.7vw, 132px);
+  font-family: "Sequencer Display", sans-serif;
+  font-size: clamp(48px, 8.6vw, 132px);
   font-weight: 700;
-  letter-spacing: -0.065em;
-  line-height: 0.82;
+  letter-spacing: -0.01em;
+  line-height: 0.84;
   text-shadow:
     0 0 10px rgba(255, 255, 255, 0.16),
-    0 0 34px rgba(255, 46, 136, 0.18),
-    0 0 72px rgba(126, 71, 255, 0.16);
+    0 0 18px rgba(255, 46, 136, 0.11),
+    0 0 40px rgba(126, 71, 255, 0.1);
+  animation: worldstreams-title-edge-glow 4.5s ease-in-out infinite;
+}
+
+@keyframes worldstreams-title-edge-glow {
+  0%, 100% { filter: drop-shadow(-1px 0 3px rgba(129,186,236,0.13)) drop-shadow(1px 0 3px rgba(255,115,205,0.1)); }
+  50% { filter: drop-shadow(-1px 0 3px rgba(129,225,255,0.1)) drop-shadow(1px 0 3px rgba(255,115,205,0.15)); }
 }
 
 .hero-heading p {
   margin: 27px 0 0;
   color: rgba(255, 255, 255, 0.64);
   font-size: clamp(11px, 1.05vw, 16px);
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.15em;
 }
 
@@ -561,8 +555,8 @@ main {
   min-width: 0;
   overflow: hidden;
   flex: 1;
-  font-size: 13px;
-  font-weight: 750;
+  font-size: 14px;
+  font-weight: 700;
   line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -627,14 +621,17 @@ main {
   align-items: center;
   gap: 9px;
   padding: 0 24px;
-  border: 1px solid rgba(205, 158, 255, 0.35);
+  border: 1px solid transparent;
   border-radius: 999px;
-  background: linear-gradient(180deg, #1d1b24, #121217);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+  background:
+    linear-gradient(#15151b, #15151b) padding-box,
+    conic-gradient(from var(--aura-angle, 0deg), rgba(168,85,247,0.12), rgba(129,186,236,0.28), rgba(255,46,136,0.55), rgba(244,114,182,0.46), rgba(168,85,247,0.12)) border-box;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 0 13px rgba(244,114,182,0.1);
   font-size: 12px;
   font-weight: 900;
   letter-spacing: 0.035em;
-  transition: transform 170ms ease, border-color 170ms ease;
+  animation: aura-spin 5s linear infinite;
+  transition: transform 170ms ease;
 }
 
 .hero-button:hover > span { transform: scale(1.025); border-color: rgba(222, 189, 255, 0.58); }
@@ -643,6 +640,14 @@ main {
   0%, 100% { opacity: 0.68; transform: scale(0.95); }
   50% { opacity: 1; transform: scale(1.06); }
 }
+
+@property --aura-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes aura-spin { to { --aura-angle: 360deg; } }
 
 .cache-note {
   position: relative;
@@ -662,6 +667,8 @@ main {
 .directory-content > .directory-section {
   margin-top: 44px;
 }
+
+.directory-content > .directory-section:first-child { margin-top: 0; }
 
 .section-heading {
   display: flex;
@@ -722,10 +729,18 @@ main {
 
 @keyframes shimmer { to { background-position-x: -220%; } }
 
+.finder-band {
+  margin-top: 54px;
+  padding: 31px 0;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  background: #0d0d11;
+}
+
 .finder {
   position: relative;
   overflow: hidden;
-  max-width: calc(100% - 50px);
+  max-width: min(1180px, calc(100% - 50px));
   margin: 0 auto;
   padding: 26px;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -777,7 +792,7 @@ main {
 
 .finder h2 {
   margin: 0;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Founders Grotesk", sans-serif;
   font-size: 24px;
   letter-spacing: -0.02em;
   text-transform: uppercase;
@@ -910,7 +925,7 @@ main {
 
 .how-heading h2 {
   margin: 0;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Founders Grotesk", sans-serif;
   font-size: clamp(32px, 4vw, 54px);
   letter-spacing: -0.05em;
   line-height: 1;
@@ -947,7 +962,7 @@ main {
   right: 14px;
   top: -13px;
   color: rgba(255,255,255,0.035);
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Sequencer Display", sans-serif;
   font-size: 84px;
   font-weight: 700;
 }
@@ -958,7 +973,7 @@ main {
   align-items: center;
   gap: 9px;
   margin: 0;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Founders Grotesk", sans-serif;
   font-size: 17px;
 }
 
@@ -972,27 +987,53 @@ main {
   line-height: 1.75;
 }
 
-footer {
-  min-height: 90px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 0 25px;
+.faq-section {
+  padding: 61px 25px 64px;
   border-top: 1px solid rgba(255,255,255,0.07);
-  color: rgba(255,255,255,0.35);
+  background: #09090b;
+}
+
+.faq-heading { max-width: 720px; margin: 0 auto; text-align: center; }
+.faq-heading h2 {
+  margin: 0;
+  font-size: clamp(32px, 4vw, 54px);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.faq-heading p { margin: 17px 0 0; color: var(--muted); font-size: 14px; }
+.faq-list { max-width: 1000px; margin: 35px auto 0; }
+.faq-list article { padding: 23px 0; border-bottom: 1px solid rgba(255,255,255,0.09); }
+.faq-list h3 { margin: 0; font-size: 19px; }
+.faq-list p { max-width: 780px; margin: 8px 0 0; color: var(--muted); font-size: 14px; line-height: 1.65; }
+
+.site-footer {
+  padding: 46px max(25px, calc((100% - 1150px) / 2)) 25px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.48);
+  background: #0d0d0f;
+  font-size: 13px;
+}
+.footer-top { display: flex; justify-content: space-between; gap: 70px; }
+.footer-intro { max-width: 270px; }
+.footer-intro img { width: 154px; height: auto; }
+.footer-intro p { margin: 15px 0 0; line-height: 1.55; }
+.footer-links { display: flex; flex-wrap: wrap; gap: 70px; }
+.footer-links > div { min-width: 105px; display: flex; flex-direction: column; gap: 9px; }
+.footer-links strong { margin-bottom: 3px; color: #fff; font-size: 14px; }
+.site-footer a { color: rgba(255,255,255,0.48); text-decoration: none; transition: color 140ms ease; }
+.site-footer a:hover { color: #fff; }
+.footer-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  margin-top: 38px;
+  padding-top: 22px;
+  border-top: 1px solid rgba(255,255,255,0.09);
   font-size: 11px;
 }
-
-.footer-brand {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  color: rgba(255,255,255,0.68);
-  font-weight: 700;
-}
-
-.footer-brand .brand-mark { transform: scale(0.8); transform-origin: left center; }
+.footer-bottom div { display: flex; flex-wrap: wrap; gap: 20px; }
 
 .player-modal {
   position: fixed;
@@ -1133,7 +1174,7 @@ footer {
 .player-preview-content h2 {
   max-width: 760px;
   margin: 15px 0 0;
-  font-family: "Space Grotesk", sans-serif;
+  font-family: "Founders Grotesk", sans-serif;
   font-size: clamp(42px, 6vw, 84px);
   letter-spacing: -0.055em;
   line-height: 0.95;
@@ -1197,20 +1238,25 @@ footer {
 
 @media (max-width: 900px) {
   .world-sidebar { display: none; }
-  .hero-heading h1 { font-size: clamp(44px, 11.5vw, 86px); }
+  .hero-heading h1 { font-size: 64px; }
   .finder-grid { grid-template-columns: 1fr 1fr; }
   .finder-grid .world-card:last-child { display: none; }
 }
 
+@media (max-width: 767px) {
+  .hero-heading h1 { font-size: 52px; }
+}
+
 @media (max-width: 640px) {
   .site-header { padding-left: 12px; }
-  .brand strong { display: none; }
-  .site-header nav a { display: none; }
+  .brand-logo-full { display: none; }
+  .brand-logo-mark { display: block; }
+  .gemini-chip { display: none; }
   .site-header nav { gap: 8px; }
   .site-header nav button { padding: 0 10px; }
   .hero { padding-top: 31px; }
   .hero-heading { padding: 0 14px; }
-  .hero-heading h1 { font-size: clamp(38px, 13vw, 60px); line-height: 0.9; }
+  .hero-heading h1 { font-size: clamp(30px, 8.4vw, 52px); line-height: 0.9; }
   .hero-heading p { margin-top: 20px; font-size: 10px; line-height: 1.55; }
   .hero-rail-wrap { margin-top: 27px; }
   .card-rail { padding-left: 14px; padding-right: 14px; }
@@ -1219,6 +1265,7 @@ footer {
   .hero-description { margin-top: 24px; font-size: 12px; line-height: 1.7; }
   .hero-description br { display: none; }
   .directory-content { padding-top: 16px; }
+  .finder-band { margin-top: 42px; padding: 20px 0; }
   .finder { max-width: calc(100% - 28px); padding: 20px 16px; }
   .finder h2 { font-size: 20px; }
   .finder-form { flex-direction: column; }
@@ -1233,8 +1280,11 @@ footer {
   .how-it-works { padding: 48px 14px 52px; }
   .how-heading h2 { font-size: 34px; }
   .how-grid { grid-template-columns: 1fr; }
-  footer { min-height: 78px; padding: 0 14px; }
-  footer > span:last-child { display: none; }
+  .faq-section { padding: 48px 14px 50px; }
+  .footer-top { flex-direction: column; gap: 35px; }
+  .footer-links { justify-content: space-between; gap: 25px; }
+  .footer-bottom { flex-direction: column; gap: 12px; }
+  .site-footer { padding: 40px 18px 24px; }
   .player-preview-vignette {
     background: linear-gradient(0deg, rgba(4,4,7,0.94) 0%, rgba(4,4,7,0.56) 72%, rgba(4,4,7,0.25) 100%);
   }

@@ -1,5 +1,6 @@
 import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from 'react';
 import {
+  displayViewerCount,
   sectionWorlds,
   statusColor,
   statusLabel,
@@ -121,7 +122,7 @@ function WorldCard({ world, featured = false, onOpen, reason }: {
         <span className="world-card-text">
           <span className="world-card-title-row">
             <strong>{world.title}</strong>
-            <small>{viewerLabel(world.viewerCount)}</small>
+            <small>{viewerLabel(displayViewerCount(world.viewerCount, world.publicId))}</small>
           </span>
           <span className="world-name">{reason || world.worldName}</span>
         </span>
@@ -308,14 +309,12 @@ function Header() {
   return (
     <header className="site-header">
       <button type="button" className="brand" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-        <span className="brand-mark"><i /><i /><i /></span>
-        <strong>SEQUENCER</strong>
-        <span className="brand-divider" />
-        <span>WORLDSTREAMS</span>
+        <img className="brand-logo brand-logo-full" src="/brand/sequencer-logo.svg" alt="Sequencer" />
+        <img className="brand-logo brand-logo-mark" src="/brand/sequencer-mark.svg" alt="Sequencer" />
       </button>
       <nav>
-        <a href="#how-it-works">How it works</a>
-        <button type="button" onClick={scrollToFinder}><SparkIcon size={14} /> Find a world</button>
+        <span className="gemini-chip"><SparkIcon size={12} /> Gemini curator</span>
+        <button type="button" onClick={scrollToFinder}><SparkIcon size={14} /> Find your world</button>
       </nav>
     </header>
   );
@@ -362,6 +361,85 @@ function HowItWorks() {
   );
 }
 
+const faqs = [
+  {
+    question: 'What is a Worldstream?',
+    answer: 'A Worldstream is a live, audience-directed world that generates an ongoing sequence of scenes. Everyone watches the same stream and helps choose what happens next.',
+  },
+  {
+    question: 'How do viewers influence the story?',
+    answer: 'Each live round presents new choices. Viewers vote, suggest prompts, and steer the next scene while the world carries its characters and story history forward.',
+  },
+  {
+    question: 'Do viewers need an account?',
+    answer: 'Published Worldstreams are open to watch. Select a world here and enter its public live player on worldstreams.ai.',
+  },
+  {
+    question: 'What happens when a Worldstream is idle?',
+    answer: 'Its public page and share link remain available. The directory marks it as idle until the live stream starts again.',
+  },
+];
+
+function WorldstreamsFAQ() {
+  return (
+    <section className="faq-section">
+      <div className="faq-heading">
+        <h2>Worldstreams FAQ</h2>
+        <p>The essentials for watching and directing a live Worldstream.</p>
+      </div>
+      <div className="faq-list">
+        {faqs.map(item => (
+          <article key={item.question}>
+            <h3>{item.question}</h3>
+            <p>{item.answer}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function SiteFooter() {
+  return (
+    <footer className="site-footer">
+      <div className="footer-top">
+        <div className="footer-intro">
+          <img src="/brand/sequencer-logo.svg" alt="Sequencer" />
+          <p>The creative suite for AI filmmaking.</p>
+        </div>
+        <div className="footer-links">
+          <div>
+            <strong>Studio</strong>
+            <a href="https://sequencer.media/studio" target="_blank" rel="noreferrer">Our Work</a>
+            <a href="https://sequencer.media/events" target="_blank" rel="noreferrer">Events</a>
+            <a href="https://sequencer.media/posts/tutorials" target="_blank" rel="noreferrer">Academy</a>
+          </div>
+          <div>
+            <strong>Product</strong>
+            <a href="https://sequencer.media/film" target="_blank" rel="noreferrer">For Filmmakers</a>
+            <a href="https://sequencer.media/extensions" target="_blank" rel="noreferrer">Extensions</a>
+            <a href="https://sequencer.media/docs" target="_blank" rel="noreferrer">Documentation</a>
+          </div>
+          <div>
+            <strong>Company</strong>
+            <a href="https://sequencer.media/about" target="_blank" rel="noreferrer">About Us</a>
+            <a href="https://sequencer.media/careers" target="_blank" rel="noreferrer">Careers</a>
+            <a href="https://sequencer.media/pricing" target="_blank" rel="noreferrer">Pricing</a>
+          </div>
+        </div>
+      </div>
+      <div className="footer-bottom">
+        <span>© 2026 Sequencer. All rights reserved.</span>
+        <div>
+          <a href="https://sequencer.media/terms-of-service" target="_blank" rel="noreferrer">Terms of Service</a>
+          <a href="https://sequencer.media/privacy-policy" target="_blank" rel="noreferrer">Privacy Policy</a>
+          <a href="https://sequencer.media/content-policy" target="_blank" rel="noreferrer">Content Policy</a>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
 export default function App() {
   const [worlds, setWorlds] = useState<Worldstream[]>([]);
   const [source, setSource] = useState<'live' | 'cache'>('live');
@@ -405,26 +483,26 @@ export default function App() {
             </div>
             <p className="hero-description">
               Worldstreams are interactive AI video experiences generated live and shaped in real time.<br />
-              Choose a world, influence what happens, and watch the journey unfold.
+              Vote on what happens, sit back, and watch the journey unfold.
             </p>
-            <a className="hero-button" href="#world-finder"><span><SparkIcon size={16} /> FIND YOUR WORLD</span></a>
+            <a className="hero-button" href="#world-finder"><span>EXPLORE WITH GEMINI</span></a>
             {source === 'cache' && !loading ? <div className="cache-note">Showing the offline catalog while the live directory reconnects.</div> : null}
           </section>
 
           <div className="directory-content">
-            <WorldFinder worlds={worlds} onOpen={setSelectedWorld} />
             <Rail title="Trending Worlds" worlds={sections.trending} onOpen={setSelectedWorld} />
             {sections.multiplayer.length ? (
               <Rail title="Multiplayer Worlds" worlds={sections.multiplayer} onOpen={setSelectedWorld} />
             ) : null}
             <Rail title="Games" worlds={sections.games} onOpen={setSelectedWorld} emptyText="More playable worlds are coming online." />
             {sections.stories.length ? <Rail title="World Stories" worlds={sections.stories} onOpen={setSelectedWorld} /> : null}
+            <div className="finder-band">
+              <WorldFinder worlds={worlds} onOpen={setSelectedWorld} />
+            </div>
           </div>
           <HowItWorks />
-          <footer>
-            <div className="footer-brand"><span className="brand-mark"><i /><i /><i /></span> SEQUENCER</div>
-            <span>Interactive worlds, generated live.</span>
-          </footer>
+          <WorldstreamsFAQ />
+          <SiteFooter />
         </main>
       </div>
       {selectedWorld ? <PlayerModal world={selectedWorld} onClose={() => setSelectedWorld(null)} /> : null}

@@ -43,7 +43,7 @@ describe('catalog helpers', () => {
   });
 
   it('uses clear public labels', () => {
-    expect(statusLabel('sleeping')).toBe('Ready');
+    expect(statusLabel('sleeping')).toBe('Idle');
     expect(statusLabel('live')).toBe('Live');
     expect(viewerLabel(null)).toBe('Ready to watch');
     expect(viewerLabel(1_200)).toBe('1.2K viewers');
