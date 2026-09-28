@@ -41,11 +41,13 @@ describe('faux Worldstream profiles', () => {
     expect(seededViewerCount(item)).toBeLessThan(824);
   });
 
-  it('keeps four generated clip prompts aligned with every configured world', () => {
+  it('keeps generated clip prompts aligned with every configured world', () => {
     for (const [title, choices] of Object.entries(streamSequences)) {
       const profile = createFauxStreamProfile(world(title));
       expect(profile.choices).toEqual(choices);
-      expect(new Set(choices.map(choice => choice.label)).size).toBe(4);
+      expect(choices.length).toBeGreaterThanOrEqual(4);
+      expect(choices.length).toBeLessThanOrEqual(6);
+      expect(new Set(choices.map(choice => choice.label)).size).toBe(choices.length);
     }
   });
 });

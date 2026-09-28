@@ -94,7 +94,7 @@
   font-size: 10px;
 }
 
-.faux-demo-pill,
+.faux-live-status-pill,
 .faux-viewers {
   height: 26px;
   display: inline-flex;
@@ -107,7 +107,7 @@
   background: rgba(255, 255, 255, .04);
 }
 
-.faux-demo-pill i,
+.faux-live-status-pill i,
 .faux-live-badge i,
 .faux-world-live i {
   width: 6px;
@@ -869,7 +869,7 @@
 
 .faux-chat-form button { width: 38px; flex: 0 0 38px; padding: 0; }
 
-.faux-demo-disclaimer {
+.faux-activity-note {
   margin-top: 7px;
   color: rgba(255, 255, 255, .27);
   font-size: 8px;
@@ -924,7 +924,7 @@
   .faux-back { position: static; }
   .faux-brand { display: none; }
   .faux-header-title { justify-content: flex-start; }
-  .faux-demo-pill { display: none; }
+  .faux-live-status-pill { display: none; }
   .faux-body { min-height: auto; flex: none; display: block; }
   .faux-world-rail { display: none; }
   .faux-experience { display: block; overflow: visible; }
@@ -960,7 +960,7 @@
   .faux-chat-message,
   .faux-chat-system,
   .faux-reaction-bursts span,
-  .faux-demo-pill i,
+  .faux-live-status-pill i,
   .faux-live-badge i,
   .faux-world-live i { animation: none; }
 }

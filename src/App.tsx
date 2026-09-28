@@ -10,9 +10,7 @@ import {
   worldsForRecommendations,
 } from './lib/catalog';
 import type {
-  ArchitectResult,
   CatalogResponse,
-  DirectorBranch,
   DiscoveryResponse,
   Worldstream,
 } from './types';
@@ -53,31 +51,6 @@ function ArrowIcon() {
   return (
     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="m9 18 6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function SlidersIcon({ size = 16 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6" />
-    </svg>
-  );
-}
-
-function FilmIcon({ size = 16 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect width="18" height="18" x="3" y="3" rx="2" />
-      <path d="M7 3v18M17 3v18M3 7.5h4M3 12h18M3 16.5h4M17 7.5h4M17 16.5h4" />
-    </svg>
-  );
-}
-
-function PlusIcon({ size = 16 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M12 5v14M5 12h14" />
     </svg>
   );
 }
@@ -154,9 +127,6 @@ function WorldCard({ world, featured = false, onOpen, reason }: {
           />
           {statusLabel(world.status)}
         </div>
-        {world.isCustom ? (
-          <span className="custom-badge"><SparkIcon size={10} /> Architected</span>
-        ) : null}
         <span className="play-overlay"><span><PlayIcon /></span></span>
       </div>
       <div className="world-card-copy">
@@ -346,455 +316,7 @@ function WorldFinder({
   );
 }
 
-function DirectorBooth({
-  world,
-  onClose,
-}: {
-  world: Worldstream;
-  onClose: () => void;
-}) {
-  const [branch, setBranch] = useState<DirectorBranch | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [sceneHistory, setSceneHistory] = useState<string[]>([]);
-  const [selectedChoice, setSelectedChoice] = useState<string>('');
-  const [customPrompt, setCustomPrompt] = useState<string>('');
-  const [generating, setGenerating] = useState(false);
-  const [showPromptDetails, setShowPromptDetails] = useState(false);
-
-  const fetchBranch = async (choiceText?: string) => {
-    setGenerating(true);
-    try {
-      const nextSceneNumber = branch ? branch.sceneNumber + 1 : 1;
-      const response = await fetch('/api/director/branch', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          world,
-          choice: choiceText || selectedChoice || customPrompt || 'Commence broadcast',
-          sceneNumber: nextSceneNumber,
-          history: sceneHistory,
-        }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setBranch(data);
-        if (data.narrativeEvent) {
-          setSceneHistory(prev => [...prev, data.narrativeEvent].slice(-5));
-        }
-        setSelectedChoice('');
-        setCustomPrompt('');
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setGenerating(false);
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchBranch('Stream initialization');
-  }, [world.publicId]);
-
-  return (
-    <div className="director-cockpit">
-      <div className="director-deck-header">
-        <div className="director-badge">
-          <span className="director-live-pulse" />
-          <SparkIcon size={13} />
-          <strong>Gemini Live World Director</strong>
-        </div>
-        <div className="director-status-meta">
-          {branch ? (
-            <span className={`tension-badge tension-${branch.tensionLevel}`}>
-              Tension: {branch.tensionLevel.toUpperCase()}
-            </span>
-          ) : null}
-          <span className="scene-counter">Scene #{branch?.sceneNumber || 1}</span>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="director-loading-state">
-          <div className="button-spinner" />
-          <span>Gemini is synthesizing world state & audience directives...</span>
-        </div>
-      ) : branch ? (
-        <div className="director-cockpit-content">
-          <div className="director-narrative-card">
-            <div className="scene-title-row">
-              <FilmIcon size={14} />
-              <h4>{branch.sceneTitle}</h4>
-            </div>
-            <p className="narrative-event-text">{branch.narrativeEvent}</p>
-            <div className="director-notes">
-              <small>🎯 Director Strategy: {branch.directorNotes}</small>
-            </div>
-          </div>
-
-          <div className="director-dilemma-card">
-            <h5>
-              <SlidersIcon size={14} />
-              <span>Audience Decision Dilemma</span>
-            </h5>
-            <p className="poll-question">{branch.audiencePoll.question}</p>
-
-            <div className="poll-choices-grid">
-              {branch.audiencePoll.choices.map(choice => (
-                <button
-                  key={choice.id}
-                  type="button"
-                  className={`poll-choice-btn ${selectedChoice === choice.text ? 'is-selected' : ''}`}
-                  onClick={() => {
-                    setSelectedChoice(choice.text);
-                    setCustomPrompt('');
-                  }}
-                >
-                  <div className="choice-text-row">
-                    <span>{choice.text}</span>
-                    <strong>{choice.votesPercent}%</strong>
-                  </div>
-                  <div className="choice-vote-bar">
-                    <div style={{ width: `${choice.votesPercent}%` }} />
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            <div className="custom-override-input">
-              <input
-                type="text"
-                placeholder="Or input custom Director Directive (override)..."
-                value={customPrompt}
-                onChange={e => {
-                  setCustomPrompt(e.target.value);
-                  setSelectedChoice('');
-                }}
-                maxLength={180}
-              />
-            </div>
-
-            <button
-              type="button"
-              className="commit-branch-btn"
-              disabled={generating || (!selectedChoice && !customPrompt.trim())}
-              onClick={() => fetchBranch(selectedChoice || customPrompt)}
-            >
-              {generating ? <span className="button-spinner" /> : <SparkIcon size={15} />}
-              {generating ? 'Gemini Generating Next Scene...' : 'Direct Next Scene (Gemini)'}
-            </button>
-          </div>
-
-          <div className="director-tools-row">
-            <div className="director-chat-feed">
-              <div className="chat-title">
-                <span className="live-dot" /> Live Audience Chat (Simulated)
-              </div>
-              <div className="chat-messages-list">
-                {branch.audienceChat.map((item, idx) => (
-                  <div key={idx} className="chat-msg-row">
-                    <span className="chat-user">@{item.user}:</span>
-                    <span className="chat-text">{item.message}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="director-veo-box">
-              <div className="veo-title-bar">
-                <div className="veo-title">
-                  <FilmIcon size={13} />
-                  <span>Veo Video Prompt Engine</span>
-                </div>
-                <button
-                  type="button"
-                  className="veo-toggle-btn"
-                  onClick={() => setShowPromptDetails(!showPromptDetails)}
-                >
-                  {showPromptDetails ? 'Hide' : 'Inspect'}
-                </button>
-              </div>
-              {showPromptDetails ? (
-                <p className="veo-prompt-text">{branch.videoGenerationPrompt}</p>
-              ) : (
-                <p className="veo-prompt-preview">
-                  {branch.videoGenerationPrompt.slice(0, 110)}...
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      ) : null}
-    </div>
-  );
-}
-
-function PlayerModal({
-  world,
-  onClose,
-}: {
-  world: Worldstream;
-  onClose: () => void;
-}) {
-  const [activeTab, setActiveTab] = useState<'watch' | 'director'>('director');
-
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    const onKeyDown = (event: globalThis.KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', onKeyDown);
-    };
-  }, [onClose]);
-
-  return (
-    <div className="player-modal" role="dialog" aria-modal="true" aria-label={`Playing ${world.title}`}>
-      <header className="player-header">
-        <button type="button" onClick={onClose} className="player-back" aria-label="Back to Worldstreams">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="m15 18-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
-        <Avatar world={world} />
-        <div className="player-title">
-          <strong>{world.title}</strong>
-          <span><i style={{ background: statusColor(world.status) }} /> {statusLabel(world.status)}</span>
-        </div>
-
-        <div className="modal-tab-pills">
-          <button
-            type="button"
-            className={`modal-tab-btn ${activeTab === 'director' ? 'active' : ''}`}
-            onClick={() => setActiveTab('director')}
-          >
-            <SparkIcon size={14} /> Gemini Director Booth
-          </button>
-          <button
-            type="button"
-            className={`modal-tab-btn ${activeTab === 'watch' ? 'active' : ''}`}
-            onClick={() => setActiveTab('watch')}
-          >
-            <PlayIcon size={14} /> Stream View
-          </button>
-        </div>
-      </header>
-
-      <div className="player-preview-stage">
-        <WorldMedia world={world} eager />
-        <div className="player-preview-vignette" />
-
-        {activeTab === 'watch' ? (
-          <div className="player-preview-content">
-            <div className="player-preview-kicker">
-              <span />
-              <span>{world.type || 'Interactive world'}</span>
-            </div>
-            <h2>{world.title}</h2>
-            <p>{world.description || 'Enter an interactive AI video world shaped by its audience.'}</p>
-            {world.visualStyle ? (
-              <div className="custom-world-meta">
-                <small><strong>Visuals:</strong> {world.visualStyle}</small>
-              </div>
-            ) : null}
-            <div className="player-preview-actions">
-              <button
-                type="button"
-                className="director-launch-btn"
-                onClick={() => setActiveTab('director')}
-              >
-                <SparkIcon size={16} /> Open Gemini Director Booth
-              </button>
-              <a
-                href={`https://worldstreams.ai/w/${encodeURIComponent(world.publicId)}`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <PlayIcon size={16} /> Enter live world
-              </a>
-              <button type="button" onClick={onClose}>Keep browsing</button>
-            </div>
-            <small>The live streaming backend connects to worldstreams.ai</small>
-          </div>
-        ) : (
-          <DirectorBooth world={world} onClose={onClose} />
-        )}
-      </div>
-    </div>
-  );
-}
-
-const architectInspirations = [
-  'Bioluminescent underwater Venice ruled by leviathans and deep-sea divers',
-  'Deep-space trading outpost during a rogue bio-synthetic containment breach',
-  'Post-apocalyptic solar nomads navigating an endless supercell storm',
-  'Cyber-noir detective solving reality fractures across parallel neon timelines',
-];
-
-function WorldArchitectModal({
-  isOpen,
-  onClose,
-  onCreated,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onCreated: (world: Worldstream) => void;
-}) {
-  const [concept, setConcept] = useState('');
-  const [genre, setGenre] = useState('Sci-Fi / Speculative');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [result, setResult] = useState<ArchitectResult | null>(null);
-
-  if (!isOpen) return null;
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (concept.trim().length < 4 || loading) return;
-    setLoading(true);
-    setError('');
-    try {
-      const response = await fetch('/api/architect/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ concept: concept.trim(), genre }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data?.error || 'Failed to architect world');
-      setResult(data as ArchitectResult);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Architect error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const launchWorld = () => {
-    if (result) {
-      onCreated(result.world);
-      onClose();
-    }
-  };
-
-  return (
-    <div className="architect-modal-backdrop" role="dialog" aria-modal="true">
-      <div className="architect-modal">
-        <header className="architect-modal-header">
-          <div className="architect-header-title">
-            <span className="gemini-pill"><SparkIcon size={14} /> Gemini 3.8 Flash</span>
-            <h3>World Architect Studio</h3>
-          </div>
-          <button type="button" className="close-btn" onClick={onClose}>×</button>
-        </header>
-
-        <div className="architect-modal-body">
-          {!result ? (
-            <form onSubmit={handleSubmit} className="architect-form">
-              <p className="architect-intro">
-                Architect a brand-new broadcast-ready interactive AI video world. Gemini will synthesize the world lore, visual aesthetics, audience agency mechanics, and live opening dilemmas.
-              </p>
-
-              <div className="form-group">
-                <label htmlFor="world-concept">World Premise & Concept</label>
-                <textarea
-                  id="world-concept"
-                  rows={3}
-                  value={concept}
-                  onChange={e => setConcept(e.target.value)}
-                  placeholder="Describe the environment, factions, core stakes, and why audience choices matter..."
-                  maxLength={400}
-                />
-              </div>
-
-              <div className="inspiration-chips">
-                <span className="inspiration-label">Try an Idea:</span>
-                {architectInspirations.map(chip => (
-                  <button
-                    key={chip}
-                    type="button"
-                    className="chip-btn"
-                    onClick={() => setConcept(chip)}
-                  >
-                    {chip}
-                  </button>
-                ))}
-              </div>
-
-              <div className="form-group">
-                <label>Genre / Experience Vibe</label>
-                <div className="genre-pill-group">
-                  {['Sci-Fi / Speculative', 'Survival Horror', 'Mystery / Noir', 'Action Game', 'Surreal Comedy'].map(g => (
-                    <button
-                      key={g}
-                      type="button"
-                      className={`genre-pill ${genre === g ? 'is-active' : ''}`}
-                      onClick={() => setGenre(g)}
-                    >
-                      {g}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {error ? <div className="architect-error">{error}</div> : null}
-
-              <button
-                type="submit"
-                className="architect-submit-btn"
-                disabled={loading || concept.trim().length < 4}
-              >
-                {loading ? <span className="button-spinner" /> : <SparkIcon size={16} />}
-                {loading ? 'Gemini is Architecting Your World...' : 'Architect World with Gemini'}
-              </button>
-            </form>
-          ) : (
-            <div className="architect-result-view">
-              <div className="result-header-row">
-                <span className="architected-tag">✓ Architecture Complete</span>
-                <h4>{result.world.title}</h4>
-              </div>
-
-              <p className="result-description">{result.world.description}</p>
-
-              <div className="spec-grid">
-                <div className="spec-card">
-                  <strong>Visual & Lens Direction</strong>
-                  <p>{result.visualStyle}</p>
-                </div>
-                <div className="spec-card">
-                  <strong>Audience Agency Mechanics</strong>
-                  <p>{result.audienceRules}</p>
-                </div>
-                <div className="spec-card full-width">
-                  <strong>Opening Dilemma for Live Stream</strong>
-                  <p>{result.firstSceneDilemma}</p>
-                </div>
-              </div>
-
-              <div className="result-actions">
-                <button type="button" className="launch-now-btn" onClick={launchWorld}>
-                  <SparkIcon size={16} /> Mount to Directory & Launch Director Booth
-                </button>
-                <button type="button" className="retry-btn" onClick={() => setResult(null)}>
-                  Architect Another
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Header({
-  onOpenArchitect,
-}: {
-  onOpenArchitect: () => void;
-}) {
+function Header() {
   const scrollToFinder = () => document.getElementById('world-finder')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   return (
     <header className="site-header">
@@ -804,9 +326,6 @@ function Header({
       </button>
       <nav>
         <span className="gemini-chip"><SparkIcon size={12} /> Gemini 3.8 Flash</span>
-        <button type="button" className="header-architect-btn" onClick={onOpenArchitect}>
-          <PlusIcon size={13} /> Architect World
-        </button>
         <button type="button" onClick={scrollToFinder}>
           <SparkIcon size={14} /> Find your world
         </button>
@@ -866,20 +385,16 @@ const faqs = [
     answer: 'Gemini acts as the autonomous World Director. It evaluates the current story state, creates branching dilemmas for audience voting, and writes the generative video prompts for subsequent scenes.',
   },
   {
-    question: 'Can creators architect their own Worldstreams?',
-    answer: 'Yes! Use the Gemini World Architect in the top bar to synthesize complete world lore, visual style guidelines, character factions, and audience mechanics in seconds.',
-  },
-  {
     question: 'Do viewers need special hardware?',
     answer: 'No. Worldstreams render in the cloud on Google Cloud Run and stream directly to standard web browsers on desktop or mobile.',
   },
   {
     question: 'Do viewers need an account?',
-    answer: 'No account is needed for this experience. Select any world to open its interactive stream demo.',
+    answer: 'No account is needed. Select any world to open its interactive stream.',
   },
   {
     question: 'What happens when a Worldstream is idle?',
-    answer: 'Its demo stays available with a cinematic feed, simulated audience activity, voting, prompts, and reactions.',
+    answer: 'Its cinematic stream remains available with audience activity, voting, prompts, and reactions.',
   },
 ];
 
@@ -948,8 +463,6 @@ export default function App() {
   const [source, setSource] = useState<'live' | 'cache'>('live');
   const [loading, setLoading] = useState(true);
   const [selectedWorld, setSelectedWorld] = useState<Worldstream | null>(null);
-  const [isArchitectOpen, setIsArchitectOpen] = useState(false);
-  const [finderQuery, setFinderQuery] = useState('');
 
   const sections = useMemo(() => sectionWorlds(worlds), [worlds]);
 
@@ -971,11 +484,6 @@ export default function App() {
     return () => controller.abort();
   }, []);
 
-  const handleWorldCreated = (newWorld: Worldstream) => {
-    setWorlds(prev => [newWorld, ...prev]);
-    setSelectedWorld(newWorld);
-  };
-
   const openFirstFeaturedWorld = () => {
     if (sections.featured.length > 0) {
       setSelectedWorld(sections.featured[0]);
@@ -986,7 +494,7 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      <Header onOpenArchitect={() => setIsArchitectOpen(true)} />
+      <Header />
       <div className="app-body">
         <Sidebar worlds={worlds} onOpen={setSelectedWorld} />
         <main>
@@ -1002,7 +510,7 @@ export default function App() {
             </div>
             <p className="hero-description">
               Explore cinematic AI video worlds and shape what happens next.<br />
-              Vote with the audience, write a prompt, react live, or use Gemini to architect your own world.
+              Vote with the audience, write a prompt, and react live as each story unfolds.
             </p>
 
             <div className="hero-cta-cluster">
@@ -1013,14 +521,6 @@ export default function App() {
               >
                 <SparkIcon size={16} />
                 <span>Enter a Worldstream</span>
-              </button>
-              <button
-                type="button"
-                className="hero-secondary-btn"
-                onClick={() => setIsArchitectOpen(true)}
-              >
-                <PlusIcon size={15} />
-                <span>Architect A World</span>
               </button>
               <a
                 className="hero-tertiary-link"
@@ -1043,7 +543,7 @@ export default function App() {
             <Rail title="Playable Games" worlds={sections.games} onOpen={setSelectedWorld} emptyText="More playable worlds are coming online." />
             {sections.stories.length ? <Rail title="World Stories" worlds={sections.stories} onOpen={setSelectedWorld} /> : null}
             <div className="finder-band">
-              <WorldFinder worlds={worlds} onOpen={setSelectedWorld} externalQuery={finderQuery} />
+              <WorldFinder worlds={worlds} onOpen={setSelectedWorld} />
             </div>
           </div>
           <HowItWorks />
@@ -1061,12 +561,6 @@ export default function App() {
           onClose={() => setSelectedWorld(null)}
         />
       ) : null}
-
-      <WorldArchitectModal
-        isOpen={isArchitectOpen}
-        onClose={() => setIsArchitectOpen(false)}
-        onCreated={handleWorldCreated}
-      />
     </div>
   );
 }

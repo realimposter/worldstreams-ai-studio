@@ -1,9 +1,11 @@
 {
   "Timmy’s Adventures": [
     { "icon": "🕯️", "label": "Follow the distant lantern" },
-    { "icon": "🪜", "label": "Climb into the clock tower" },
-    { "icon": "🫥", "label": "Hide from the approaching shadow" },
-    { "icon": "🔓", "label": "Unlock the rusted gate" }
+    { "icon": "🐦‍⬛", "label": "Chase the lantern thief" },
+    { "icon": "⚙️", "label": "Repair the clockwork bridge" },
+    { "icon": "🕷️", "label": "Outsmart the shadow spider" },
+    { "icon": "🌙", "label": "Unlock the moon gate" },
+    { "icon": "⏰", "label": "Escape before midnight" }
   ],
   "Space Mission": [
     { "icon": "🚀", "label": "Signal the stranded dropship" },
@@ -60,10 +62,11 @@
     { "icon": "🚁", "label": "Hijack the patrol aircraft" }
   ],
   "Paws of the Sunken Grove": [
-    { "icon": "🐾", "label": "Paw the glowing floor tile" },
-    { "icon": "🎒", "label": "Search the tiny backpack" },
-    { "icon": "🦋", "label": "Follow the blue butterfly" },
-    { "icon": "🌿", "label": "Squeeze through the hidden roots" }
+    { "icon": "🦋", "label": "Chase the map-stealing butterfly" },
+    { "icon": "🐢", "label": "Cross the turtle-stone bridge" },
+    { "icon": "🌿", "label": "Outsmart the vine temple" },
+    { "icon": "☀️", "label": "Return the stolen sunstone" },
+    { "icon": "🌊", "label": "Surf the flood back home" }
   ],
   "Dimension Hoppers": [
     { "icon": "🥸", "label": "Pretend to belong here" },

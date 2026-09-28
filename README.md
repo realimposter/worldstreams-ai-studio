@@ -1,12 +1,12 @@
 # Worldstreams
 
-Worldstreams is a responsive discovery experience for interactive AI video worlds. It loads the public world catalog from the Sequencer API and opens every world in an interactive simulated stream with demo media, audience choices, prompts, reactions, and chat.
+Worldstreams is a responsive discovery experience for interactive AI video worlds. It loads the public world catalog from the Sequencer API and opens every world in an interactive stream with cinematic media, audience choices, prompts, reactions, and chat.
 
 Gemini powers the world finder. Visitors describe a mood, story, or place, and Gemini recommends three experiences from the live catalog.
 
-The stream interactions run locally for demonstration and never write to production. Public catalog details and available demo media remain externally hosted.
+Stream interactions remain browser-local. Public catalog details and available media are externally hosted.
 
-Each world supports a four-part stream sequence. Viewers vote during a 15-second beat, the selected prompt moves into the lead, and its matching clip plays next. The sequence loops continuously.
+Each world supports a looping multi-part stream sequence. Audience voting and prompts provide the live interaction layer while generated chapters preserve story continuity.
 
 ## Run locally
 
@@ -24,13 +24,13 @@ Add `GEMINI_API_KEY` to `.env` to enable Gemini locally. Without a key, the inte
 
 Gemini Omni 1.1 Flash generates up to 10 seconds per clip. Worldstreams plays each generated clip at a calibrated rate as a smooth 15-second stream beat.
 
-Preview a world's four prompts without generating media:
+Preview a world's prompts without generating media:
 
 ```bash
 node scripts/generate-omni-clips.mjs --world "Space Mission" --dry-run
 ```
 
-Generate the four linked clips using the server-side key in the ignored `.env` file:
+Generate linked clips using the server-side key in the ignored `.env` file:
 
 ```bash
 npm run generate:streams -- --world "Space Mission" --confirm-generation

@@ -19,7 +19,7 @@ const worldSelector = worldArgumentIndex >= 0 ? args[worldArgumentIndex + 1] : '
 
 function usage() {
   console.log([
-    'Generate four linked Gemini Omni clips for one or more Worldstreams.',
+    'Generate linked Gemini Omni clips for one or more Worldstreams.',
     '',
     'Preview prompts:',
     '  node scripts/generate-omni-clips.mjs --world "Space Mission" --dry-run',
@@ -166,8 +166,8 @@ async function createInteraction(world, prompt, image, previousInteractionId) {
 
 async function generateWorld(world) {
   const choices = sequences[world.title];
-  if (!Array.isArray(choices) || choices.length !== 4) {
-    throw new Error(`No four-part prompt sequence is defined for ${world.title}.`);
+  if (!Array.isArray(choices) || choices.length < 4 || choices.length > 6) {
+    throw new Error(`No valid prompt sequence is defined for ${world.title}.`);
   }
   const outputDirectory = join(rootDirectory, 'public', 'streams', world.publicId);
   await mkdir(outputDirectory, { recursive: true });
@@ -203,7 +203,7 @@ async function generateWorld(world) {
       continue;
     }
 
-    console.log(`[${world.title}] Generating ${index + 1}/4: ${choice.label}`);
+    console.log(`[${world.title}] Generating ${index + 1}/${choices.length}: ${choice.label}`);
     const initial = await createInteraction(world, prompt, image, previousInteractionId);
     const { interaction, video } = await pollInteraction(initial);
     const bytes = await videoBytes(video);
@@ -248,7 +248,8 @@ async function main() {
   if (!confirmed) throw new Error('Add --confirm-generation to authorize the requested Gemini video generations.');
   if (!process.env.GEMINI_API_KEY) throw new Error('GEMINI_API_KEY is not configured. Add it to the ignored local .env file.');
 
-  console.log(`Generating ${targets.length * 4} video clips for ${targets.length} world(s).`);
+  const clipCount = targets.reduce((count, world) => count + sequences[world.title].length, 0);
+  console.log(`Generating ${clipCount} video clips for ${targets.length} world(s).`);
   for (const world of targets) await generateWorld(world);
 }
 

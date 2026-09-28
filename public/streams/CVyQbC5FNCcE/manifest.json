@@ -2,7 +2,7 @@
   "publicId": "CVyQbC5FNCcE",
   "title": "Timmy’s Adventures",
   "model": "google-gemini-omni-1-1",
-  "generatedAt": "2026-09-28T00:17:00.000Z",
+  "generatedAt": "2026-09-28T00:36:00.000Z",
   "sourceDurationSeconds": 10,
   "playbackDurationSeconds": 15,
   "segments": [
@@ -10,29 +10,43 @@
       "id": "segment-1",
       "icon": "🕯️",
       "label": "Follow the distant lantern",
-      "prompt": "The child notices a warm distant lantern swinging beyond twisted roots, carefully follows it across a fragile plank, and reaches a foggy clearing as the light suddenly stops.",
+      "prompt": "Timmy follows a distant lantern through the foggy roots and reaches a mysterious clearing.",
       "videoUrl": "/streams/CVyQbC5FNCcE/segment-1.mp4"
     },
     {
       "id": "segment-2",
-      "icon": "🪜",
-      "label": "Climb into the clock tower",
-      "prompt": "The child reaches an immense ruined clock tower, climbs moving gears and hanging chains while dust falls, then pulls onto a high ledge overlooking the wasteland.",
+      "icon": "🐦‍⬛",
+      "label": "Chase the lantern thief",
+      "prompt": "A clockwork crow steals the lantern and leads Timmy through the roots into a ruined clock tower.",
       "videoUrl": "/streams/CVyQbC5FNCcE/segment-2.mp4"
     },
     {
       "id": "segment-3",
-      "icon": "🫥",
-      "label": "Hide from the approaching shadow",
-      "prompt": "A towering many-legged shadow approaches through the fog. The child slips behind broken machinery, stays perfectly still as it passes close, then quietly emerges.",
+      "icon": "⚙️",
+      "label": "Repair the clockwork bridge",
+      "prompt": "Timmy catches a brass gear, repairs an ancient console, and unfolds a bridge across the clockwork chasm.",
       "videoUrl": "/streams/CVyQbC5FNCcE/segment-3.mp4"
     },
     {
       "id": "segment-4",
-      "icon": "🔓",
-      "label": "Unlock the rusted gate",
-      "prompt": "The child finds a massive rusted gate tangled in roots, turns an ancient key with both hands, and the gate groans open to reveal an eerie glowing passage.",
+      "icon": "🕷️",
+      "label": "Outsmart the shadow spider",
+      "prompt": "Timmy crosses the bridge, baits a giant shadow spider with the lantern, and traps it behind an iron gate.",
       "videoUrl": "/streams/CVyQbC5FNCcE/segment-4.mp4"
+    },
+    {
+      "id": "segment-5",
+      "icon": "🌙",
+      "label": "Unlock the moon gate",
+      "prompt": "Timmy uses the lantern and brass gear to unlock the moon gate as the tower races toward midnight.",
+      "videoUrl": "/streams/CVyQbC5FNCcE/segment-5.mp4"
+    },
+    {
+      "id": "segment-6",
+      "icon": "⏰",
+      "label": "Escape before midnight",
+      "prompt": "Timmy races across collapsing rooftops, rides a lantern cable to safety, and returns to the foggy forest.",
+      "videoUrl": "/streams/CVyQbC5FNCcE/segment-6.mp4"
     }
   ]
 }

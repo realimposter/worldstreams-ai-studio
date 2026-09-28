@@ -1,0 +1,45 @@
+{
+  "publicId": "rb6Nk00MFXzl",
+  "title": "Paws of the Sunken Grove",
+  "model": "google-gemini-omni-1-1",
+  "generatedAt": "2026-09-28T00:36:00.000Z",
+  "sourceDurationSeconds": 10,
+  "playbackDurationSeconds": 15,
+  "segments": [
+    {
+      "id": "segment-1",
+      "icon": "🦋",
+      "label": "Chase the map-stealing butterfly",
+      "prompt": "A blue butterfly steals the explorer map and leads the orange tabby through the ruins to a sparkling jungle stream.",
+      "videoUrl": "/streams/rb6Nk00MFXzl/segment-1.mp4"
+    },
+    {
+      "id": "segment-2",
+      "icon": "🐢",
+      "label": "Cross the turtle-stone bridge",
+      "prompt": "The cat follows the butterfly across rising turtle-shaped stepping stones to a vine-covered temple.",
+      "videoUrl": "/streams/rb6Nk00MFXzl/segment-2.mp4"
+    },
+    {
+      "id": "segment-3",
+      "icon": "🌿",
+      "label": "Outsmart the vine temple",
+      "prompt": "The cat dodges living vines, solves glowing paw-shaped floor tiles, and opens the golden sunstone chamber.",
+      "videoUrl": "/streams/rb6Nk00MFXzl/segment-3.mp4"
+    },
+    {
+      "id": "segment-4",
+      "icon": "☀️",
+      "label": "Return the stolen sunstone",
+      "prompt": "The cat returns the sunstone to a sleeping feline guardian as sparkling water begins filling the temple.",
+      "videoUrl": "/streams/rb6Nk00MFXzl/segment-4.mp4"
+    },
+    {
+      "id": "segment-5",
+      "icon": "🌊",
+      "label": "Surf the flood back home",
+      "prompt": "The cat surfs the rising water on a giant leaf and returns safely to the sunlit grove.",
+      "videoUrl": "/streams/rb6Nk00MFXzl/segment-5.mp4"
+    }
+  ]
+}

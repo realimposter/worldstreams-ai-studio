@@ -54,6 +54,21 @@ try {
     throw new Error('Stream sequence endpoint failed.');
   }
 
+  const [timmySequenceResponse, catSequenceResponse] = await Promise.all([
+    fetch(`${baseUrl}/api/worldstreams/CVyQbC5FNCcE/sequence`),
+    fetch(`${baseUrl}/api/worldstreams/rb6Nk00MFXzl/sequence`),
+  ]);
+  const [timmySequence, catSequence] = await Promise.all([
+    timmySequenceResponse.json(),
+    catSequenceResponse.json(),
+  ]);
+  if (!timmySequenceResponse.ok || timmySequence.segments?.length !== 6) {
+    throw new Error('Timmy stream sequence did not expose six clips.');
+  }
+  if (!catSequenceResponse.ok || catSequence.segments?.length !== 5) {
+    throw new Error('Cat stream sequence did not expose five clips.');
+  }
+
   const discoveryResponse = await fetch(`${baseUrl}/api/discover`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -64,7 +79,7 @@ try {
     throw new Error('Discovery fallback failed.');
   }
 
-  console.log(`Smoke test passed with ${catalog.worldstreams.length} worlds and four-part stream support.`);
+  console.log(`Smoke test passed with ${catalog.worldstreams.length} worlds and five- to six-part stream support.`);
 } finally {
   child.kill('SIGTERM');
 }

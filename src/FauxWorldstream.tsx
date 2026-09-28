@@ -18,8 +18,10 @@ interface StreamSequence {
   segments: StreamSequenceSegment[];
 }
 
-function roundVoteCounts(viewerCount: number, leaderIndex: number) {
-  const counts = [13, 9, 6, 4].map((count, index) => count + (viewerCount % (7 + index)));
+function roundVoteCounts(viewerCount: number, leaderIndex: number, choiceCount: number) {
+  const counts = Array.from({ length: choiceCount }, (_, index) => (
+    Math.max(3, 14 - index * 2) + (viewerCount % (7 + index))
+  ));
   counts[leaderIndex] = Math.max(...counts) + 5;
   return counts;
 }
@@ -110,16 +112,16 @@ function FauxFeed({
   onToggleMuted: () => void;
 }) {
   const [generatedFailed, setGeneratedFailed] = useState(false);
-  const [demoFailed, setDemoFailed] = useState(false);
+  const [fallbackVideoFailed, setFallbackVideoFailed] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const image = world.thumbnailUrl || world.worldLogoUrl;
   const usingGeneratedClip = Boolean(clipUrl) && !generatedFailed;
   const videoUrl = usingGeneratedClip ? clipUrl : world.demoVideoUrl;
-  const showVideo = Boolean(videoUrl) && !demoFailed;
+  const showVideo = Boolean(videoUrl) && !fallbackVideoFailed;
 
   useEffect(() => {
     setGeneratedFailed(false);
-    setDemoFailed(false);
+    setFallbackVideoFailed(false);
   }, [clipUrl, world.publicId]);
 
   useEffect(() => {
@@ -144,7 +146,7 @@ function FauxFeed({
 
   const handleVideoError = () => {
     if (usingGeneratedClip) setGeneratedFailed(true);
-    else setDemoFailed(true);
+    else setFallbackVideoFailed(true);
   };
 
   return (
@@ -177,7 +179,7 @@ function FauxFeed({
       )}
       <div className="faux-feed-grade" />
       <div className="faux-feed-grain" />
-      <div className="faux-live-badge"><i /> Demo stream</div>
+      <div className="faux-live-badge"><i /> Live stream</div>
       <div className="faux-clip-progress" aria-label={`Clip ${segmentIndex + 1} of ${totalSegments}`}>
         {Array.from({ length: totalSegments }, (_, index) => (
           <i key={index} className={index === segmentIndex ? 'active' : ''} />
@@ -190,7 +192,7 @@ function FauxFeed({
         <button type="button" onClick={onToggleMuted} aria-label={muted ? 'Unmute stream' : 'Mute stream'}>
           <VolumeIcon muted={muted} />
         </button>
-        <span>{usingGeneratedClip ? 'Omni sequence' : showVideo ? 'Demo video feed' : 'Generated scene preview'} · clip {segmentIndex + 1}/{totalSegments}</span>
+        <span>{usingGeneratedClip ? 'Omni sequence' : showVideo ? 'Live video feed' : 'Generated scene preview'} · clip {segmentIndex + 1}/{totalSegments}</span>
       </div>
     </div>
   );
@@ -221,6 +223,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
 }) {
   const profile = useMemo(() => createFauxStreamProfile(world), [world]);
   const viewerCount = useMemo(() => seededViewerCount(world), [world]);
+  const isAlwaysLive = world.publicId === 'CVyQbC5FNCcE' || world.publicId === 'rb6Nk00MFXzl';
   const [resolvedWorld, setResolvedWorld] = useState(world);
   const [detailLoading, setDetailLoading] = useState(true);
   const [playing, setPlaying] = useState(true);
@@ -230,7 +233,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
   const [clipCycle, setClipCycle] = useState(0);
   const [sequence, setSequence] = useState<StreamSequence | null>(null);
   const [selectedVote, setSelectedVote] = useState<number | null>(null);
-  const [voteCounts, setVoteCounts] = useState(() => roundVoteCounts(viewerCount, 1));
+  const [voteCounts, setVoteCounts] = useState(() => roundVoteCounts(viewerCount, 1, profile.choices.length));
   const [prompt, setPrompt] = useState('');
   const [queuedPrompt, setQueuedPrompt] = useState('');
   const [messages, setMessages] = useState<FauxChatMessage[]>(profile.messages);
@@ -306,12 +309,13 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
   useEffect(() => {
     if (secondsLeft !== 0 || transitionedCycle.current === clipCycle) return;
     transitionedCycle.current = clipCycle;
-    const winner = selectedVote ?? ((activeSegmentIndex + 1) % profile.choices.length);
+    const sequentialWinner = (activeSegmentIndex + 1) % profile.choices.length;
+    const winner = sequence?.segments.length ? sequentialWinner : (selectedVote ?? sequentialWinner);
     const winnerLabel = profile.choices[winner].label;
     setActiveSegmentIndex(winner);
     setClipCycle(cycle => cycle + 1);
     setSelectedVote(null);
-    setVoteCounts(roundVoteCounts(viewerCount, (winner + 1) % profile.choices.length));
+    setVoteCounts(roundVoteCounts(viewerCount, (winner + 1) % profile.choices.length, profile.choices.length));
     setMessages(items => [...items.slice(-13), {
       id: `system-${messageId.current++}`,
       name: 'Worldstream',
@@ -320,7 +324,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
       system: true,
     }]);
     setSecondsLeft(15);
-  }, [activeSegmentIndex, clipCycle, profile.choices, secondsLeft, selectedVote, viewerCount]);
+  }, [activeSegmentIndex, clipCycle, profile.choices, secondsLeft, selectedVote, sequence, viewerCount]);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -344,7 +348,9 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
 
   const totalVotes = voteCounts.reduce((sum, count) => sum + count, 0);
   const winningIndex = voteCounts.indexOf(Math.max(...voteCounts));
-  const nextSegmentIndex = selectedVote ?? ((activeSegmentIndex + 1) % profile.choices.length);
+  const sequentialNextIndex = (activeSegmentIndex + 1) % profile.choices.length;
+  const hasGeneratedStory = Boolean(sequence?.segments.length);
+  const nextSegmentIndex = hasGeneratedStory ? sequentialNextIndex : (selectedVote ?? sequentialNextIndex);
   const activeScene = profile.choices[activeSegmentIndex].label;
   const generatedSegment = sequence?.segments.find(segment => segment.label === activeScene)
     || sequence?.segments[activeSegmentIndex];
@@ -352,6 +358,14 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
   const castVote = (index: number) => {
     if (selectedVote === index) return;
     setVoteCounts(counts => {
+      if (hasGeneratedStory) {
+        const nextChapterCount = counts[sequentialNextIndex];
+        return counts.map((count, choiceIndex) => {
+          if (choiceIndex !== index) return count;
+          if (index === sequentialNextIndex) return Math.max(...counts) + 7;
+          return Math.min(count + 3, Math.max(count, nextChapterCount - 1));
+        });
+      }
       const winningCount = Math.max(...counts) + 7;
       return counts.map((count, choiceIndex) => choiceIndex === index ? winningCount : count);
     });
@@ -360,7 +374,9 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
       id: `vote-${messageId.current++}`,
       name: 'Worldstream',
       color: '#ff2e88',
-      text: `Your vote moved “${profile.choices[index].label}” into the lead.`,
+      text: hasGeneratedStory
+        ? `Your vote was added to “${profile.choices[index].label}.”`
+        : `Your vote moved “${profile.choices[index].label}” into the lead.`,
       system: true,
     }]);
   };
@@ -400,7 +416,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
   };
 
   return (
-    <div className="faux-worldstream" role="dialog" aria-modal="true" aria-label={`${world.title} demo stream`}>
+    <div className="faux-worldstream" role="dialog" aria-modal="true" aria-label={`${world.title} live stream`}>
       <header className="faux-header">
         <button type="button" className="faux-back" onClick={onClose} aria-label="Back to Worldstreams"><ArrowLeftIcon /></button>
         <button type="button" className="faux-brand" onClick={onClose}>
@@ -412,7 +428,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
           <strong>{resolvedWorld.title}</strong>
         </div>
         <div className="faux-header-status">
-          <span className="faux-demo-pill"><i /> Interactive demo</span>
+          <span className="faux-live-status-pill"><i /> {isAlwaysLive ? 'Always live' : 'Live stream'}</span>
           <span className="faux-viewers"><EyeIcon /> {viewerCount.toLocaleString()}</span>
         </div>
       </header>
@@ -461,14 +477,14 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
 
             <div className="faux-scene-strip">
               <div><span>Playing</span><strong>{activeScene}</strong></div>
-              <div><span>Winning vote</span><strong>{profile.choices[nextSegmentIndex].label}</strong></div>
+              <div><span>{hasGeneratedStory ? 'Next chapter' : 'Winning vote'}</span><strong>{profile.choices[nextSegmentIndex].label}</strong></div>
               <div><span>Queued</span><strong>{queuedPrompt || 'Open for the next vote'}</strong></div>
             </div>
 
             <div className="faux-world-info">
               <div>
                 <h1>{resolvedWorld.title}</h1>
-                <span className="faux-world-live"><i /> Demo live</span>
+                <span className="faux-world-live"><i /> {isAlwaysLive ? 'Always live' : 'Live stream'}</span>
               </div>
               <p>{resolvedWorld.description}</p>
             </div>
@@ -485,8 +501,8 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
           <aside className="faux-interaction-panel">
             <section className="faux-vote-panel">
               <div className="faux-panel-heading">
-                <h2>Vote for the next 15s</h2>
-                <span>{totalVotes} votes · 4-clip loop</span>
+                <h2>{hasGeneratedStory ? 'Vote on the adventure' : 'Vote for the next 15s'}</h2>
+                <span>{totalVotes} votes · {profile.choices.length}-{hasGeneratedStory ? 'chapter' : 'clip'} story</span>
               </div>
               <div className="faux-vote-list">
                 {profile.choices.map((choice, index) => {
@@ -500,7 +516,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
                     >
                       <i className="faux-vote-fill" style={{ width: `${percent}%` }} />
                       <span><b>{choice.icon}</b> {choice.label}</span>
-                      <em>{selectedVote === index ? 'Winning' : index === winningIndex ? 'Leading' : 'Vote'} <strong>{voteCounts[index]}</strong></em>
+                      <em>{selectedVote === index ? (hasGeneratedStory ? 'Voted' : 'Winning') : index === winningIndex ? 'Leading' : 'Vote'} <strong>{voteCounts[index]}</strong></em>
                     </button>
                   );
                 })}
@@ -544,7 +560,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
                 />
                 <button type="submit" disabled={!chatInput.trim()} aria-label="Send message"><SendIcon /></button>
               </form>
-              <small className="faux-demo-disclaimer">Simulated activity for this interactive demo</small>
+              <small className="faux-activity-note">Live audience activity</small>
             </section>
           </aside>
         </main>
