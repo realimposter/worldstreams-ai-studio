@@ -342,6 +342,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
 
   useEffect(() => {
     let timer = 0;
+    let stopped = false;
     const addMessage = () => {
       const index = activityIndex.current++;
       const names = ['nightbyte', 'pixelpilot', 'mossboss', 'juno_tv', 'orbital', 'nova_gg'];
@@ -352,10 +353,32 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
         color: colors[index % colors.length],
         text: profile.activity[index % profile.activity.length],
       }]);
-      timer = window.setTimeout(addMessage, 900 + Math.round(Math.random() * 2_700));
     };
-    timer = window.setTimeout(addMessage, 650 + Math.round(Math.random() * 1_800));
-    return () => window.clearTimeout(timer);
+
+    const runBurst = (messagesRemaining: number) => {
+      if (stopped) return;
+      addMessage();
+      if (messagesRemaining > 1) {
+        timer = window.setTimeout(
+          () => runBurst(messagesRemaining - 1),
+          300 + Math.round(Math.random() * 650),
+        );
+        return;
+      }
+      timer = window.setTimeout(
+        () => runBurst(2 + Math.floor(Math.random() * 3)),
+        5_500 + Math.round(Math.random() * 6_000),
+      );
+    };
+
+    timer = window.setTimeout(
+      () => runBurst(2 + Math.floor(Math.random() * 3)),
+      2_800 + Math.round(Math.random() * 4_200),
+    );
+    return () => {
+      stopped = true;
+      window.clearTimeout(timer);
+    };
   }, [profile]);
 
   useEffect(() => {
