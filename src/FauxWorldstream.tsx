@@ -195,7 +195,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
   const [clipCycle, setClipCycle] = useState(0);
   const [sequence, setSequence] = useState<StreamSequence | null>(null);
   const [selectedVote, setSelectedVote] = useState<number | null>(null);
-  const [voteCounts, setVoteCounts] = useState(() => roundVoteCounts(viewerCount, 1, profile.choices.length));
+  const [voteCounts, setVoteCounts] = useState(() => Array(profile.choices.length).fill(0));
   const [prompt, setPrompt] = useState('');
   const [queuedPrompt, setQueuedPrompt] = useState('');
   const [messages, setMessages] = useState<FauxChatMessage[]>(profile.messages);
@@ -205,6 +205,8 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
   const activityIndex = useRef(0);
   const messageId = useRef(100);
   const transitionedCycle = useRef(-1);
+  const liveVoteCounts = useRef(voteCounts);
+  const voteTargets = useRef(roundVoteCounts(viewerCount, 1, profile.choices.length));
 
   useEffect(() => {
     const controller = new AbortController();
@@ -268,6 +270,40 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
   }, []);
 
   useEffect(() => {
+    const leaderIndex = (activeSegmentIndex + 1) % profile.choices.length;
+    const targets = roundVoteCounts(viewerCount, leaderIndex, profile.choices.length);
+    const emptyCounts = Array(profile.choices.length).fill(0);
+    const timers: number[] = [];
+    voteTargets.current = targets;
+    liveVoteCounts.current = emptyCounts;
+    setVoteCounts(emptyCounts);
+
+    targets.forEach((target, index) => {
+      const addVote = () => {
+        const current = liveVoteCounts.current;
+        if (current[index] >= voteTargets.current[index]) return;
+        const increase = Math.min(
+          voteTargets.current[index] - current[index],
+          Math.random() < .16 ? 2 : 1,
+        );
+        const next = current.map((count, choiceIndex) => (
+          choiceIndex === index ? count + increase : count
+        ));
+        liveVoteCounts.current = next;
+        setVoteCounts(next);
+        timers.push(window.setTimeout(addVote, 210 + Math.round(Math.random() * 280)));
+      };
+
+      const initialDelay = index === leaderIndex
+        ? 180 + Math.round(Math.random() * 180)
+        : 420 + Math.round(Math.random() * 700);
+      timers.push(window.setTimeout(addVote, initialDelay));
+    });
+
+    return () => timers.forEach(timer => window.clearTimeout(timer));
+  }, [activeSegmentIndex, clipCycle, profile.choices.length, viewerCount]);
+
+  useEffect(() => {
     if (secondsLeft !== 0 || transitionedCycle.current === clipCycle) return;
     transitionedCycle.current = clipCycle;
     const sequentialWinner = (activeSegmentIndex + 1) % profile.choices.length;
@@ -276,7 +312,6 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
     setActiveSegmentIndex(winner);
     setClipCycle(cycle => cycle + 1);
     setSelectedVote(null);
-    setVoteCounts(roundVoteCounts(viewerCount, (winner + 1) % profile.choices.length, profile.choices.length));
     setMessages(items => [...items.slice(-23), {
       id: `system-${messageId.current++}`,
       name: 'Worldstream',
@@ -310,14 +345,16 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
     if (list) list.scrollTop = list.scrollHeight;
   }, [messages]);
 
-  const winningIndex = voteCounts.indexOf(Math.max(...voteCounts));
   const sequentialNextIndex = (activeSegmentIndex + 1) % profile.choices.length;
+  const hasGeneratedStory = Boolean(sequence?.segments.length);
+  const winningIndex = hasGeneratedStory
+    ? sequentialNextIndex
+    : voteCounts.indexOf(Math.max(...voteCounts));
   const visibleVoteIndices = Array.from(
     { length: Math.min(4, profile.choices.length) },
     (_, offset) => (sequentialNextIndex + offset) % profile.choices.length,
   );
-  const visibleVotes = visibleVoteIndices.reduce((sum, index) => sum + voteCounts[index], 0);
-  const hasGeneratedStory = Boolean(sequence?.segments.length);
+  const visibleVotes = Math.max(1, visibleVoteIndices.reduce((sum, index) => sum + voteCounts[index], 0));
   const nextSegmentIndex = hasGeneratedStory ? sequentialNextIndex : (selectedVote ?? sequentialNextIndex);
   const activeScene = profile.choices[activeSegmentIndex].label;
   const generatedSegment = sequence?.segments.find(segment => segment.label === activeScene)
@@ -326,16 +363,23 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
   const castVote = (index: number) => {
     if (selectedVote === index) return;
     setVoteCounts(counts => {
+      let nextCounts: number[];
       if (hasGeneratedStory) {
         const nextChapterCount = counts[sequentialNextIndex];
-        return counts.map((count, choiceIndex) => {
+        nextCounts = counts.map((count, choiceIndex) => {
           if (choiceIndex !== index) return count;
           if (index === sequentialNextIndex) return Math.max(...counts) + 7;
           return Math.min(count + 3, Math.max(count, nextChapterCount - 1));
         });
+      } else {
+        const winningCount = Math.max(...counts) + 7;
+        nextCounts = counts.map((count, choiceIndex) => choiceIndex === index ? winningCount : count);
       }
-      const winningCount = Math.max(...counts) + 7;
-      return counts.map((count, choiceIndex) => choiceIndex === index ? winningCount : count);
+      liveVoteCounts.current = nextCounts;
+      voteTargets.current = voteTargets.current.map((target, choiceIndex) => (
+        choiceIndex === index ? Math.max(target, nextCounts[index]) : target
+      ));
+      return nextCounts;
     });
     setSelectedVote(index);
     setMessages(items => [...items.slice(-23), {
@@ -489,7 +533,10 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
                         {isWinner
                           ? <em className="faux-up-next">Up next</em>
                           : <em className="faux-vote-action">{selectedVote === index ? 'Voted' : 'Vote'}</em>}
-                        <strong>{voteCounts[index]}</strong>
+                        <strong
+                          key={`${clipCycle}-${index}-${voteCounts[index]}`}
+                          className="faux-vote-count"
+                        >{voteCounts[index]}</strong>
                       </span>
                     </button>
                   );
