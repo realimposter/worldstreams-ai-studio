@@ -176,6 +176,7 @@ function ChatMessage({ message }: { message: FauxChatMessage }) {
 }
 
 const reactions = ['🔥', '✨', '👏', '😮', '😂', '💙', '😍', '🚀'];
+const voteOptionColors = ['#ff7a00', '#ff3d71', '#ff2ec4', '#8b5cf6'];
 
 export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, onClose }: {
   world: Worldstream;
@@ -309,9 +310,13 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
     if (list) list.scrollTop = list.scrollHeight;
   }, [messages]);
 
-  const totalVotes = voteCounts.reduce((sum, count) => sum + count, 0);
   const winningIndex = voteCounts.indexOf(Math.max(...voteCounts));
   const sequentialNextIndex = (activeSegmentIndex + 1) % profile.choices.length;
+  const visibleVoteIndices = Array.from(
+    { length: Math.min(4, profile.choices.length) },
+    (_, offset) => (sequentialNextIndex + offset) % profile.choices.length,
+  );
+  const visibleVotes = visibleVoteIndices.reduce((sum, index) => sum + voteCounts[index], 0);
   const hasGeneratedStory = Boolean(sequence?.segments.length);
   const nextSegmentIndex = hasGeneratedStory ? sequentialNextIndex : (selectedVote ?? sequentialNextIndex);
   const activeScene = profile.choices[activeSegmentIndex].label;
@@ -437,7 +442,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
 
             <div className="faux-scene-strip">
               <div><span>Playing</span><strong>{activeScene}</strong></div>
-              <div><span>{hasGeneratedStory ? 'Next chapter' : 'Winning vote'}</span><strong>{profile.choices[nextSegmentIndex].label}</strong></div>
+              <div><span>Next</span><strong>{profile.choices[nextSegmentIndex].label}</strong></div>
               <div><span>Queued</span><strong>{queuedPrompt || 'Open for the next vote'}</strong></div>
             </div>
 
@@ -461,22 +466,31 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
           <aside className="faux-interaction-panel">
             <section className="faux-vote-panel">
               <div className="faux-panel-heading">
-                <h2>{hasGeneratedStory ? 'Vote on the adventure' : 'Vote for the next 15s'}</h2>
-                <span>{totalVotes} votes · {profile.choices.length}-{hasGeneratedStory ? 'chapter' : 'clip'} story</span>
+                <h2>Vote for the next live</h2>
+                <strong>{secondsLeft}</strong>
               </div>
+              <div className="faux-vote-countdown"><i style={{ width: `${secondsLeft / 15 * 100}%` }} /></div>
               <div className="faux-vote-list">
-                {profile.choices.map((choice, index) => {
-                  const percent = Math.max(4, Math.round(voteCounts[index] / totalVotes * 100));
+                {visibleVoteIndices.map((index, visibleIndex) => {
+                  const choice = profile.choices[index];
+                  const percent = Math.max(4, Math.round(voteCounts[index] / visibleVotes * 100));
+                  const isWinner = index === winningIndex;
                   return (
                     <button
                       type="button"
                       key={choice.label}
-                      className={`${index === winningIndex ? 'winning' : ''} ${selectedVote === index ? 'selected' : ''}`}
+                      className={`${isWinner ? 'winning' : ''} ${selectedVote === index ? 'selected' : ''}`}
                       onClick={() => castVote(index)}
+                      style={{ '--vote-color': voteOptionColors[visibleIndex] } as React.CSSProperties}
                     >
                       <i className="faux-vote-fill" style={{ width: `${percent}%` }} />
-                      <span><b>{choice.icon}</b> {choice.label}</span>
-                      <em>{selectedVote === index ? (hasGeneratedStory ? 'Voted' : 'Winning') : index === winningIndex ? 'Leading' : 'Vote'} <strong>{voteCounts[index]}</strong></em>
+                      <span className="faux-vote-label"><b>{choice.icon}</b> {choice.label}</span>
+                      <span className="faux-vote-meta">
+                        {isWinner
+                          ? <em className="faux-up-next">Up next</em>
+                          : <em className="faux-vote-action">{selectedVote === index ? 'Voted' : 'Vote'}</em>}
+                        <strong>{voteCounts[index]}</strong>
+                      </span>
                     </button>
                   );
                 })}

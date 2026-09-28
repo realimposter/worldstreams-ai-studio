@@ -546,8 +546,9 @@
 
 .faux-vote-panel {
   flex: 0 0 auto;
-  padding: 15px 15px 14px;
+  padding: 11px 10px 12px;
   border-bottom: 1px solid rgba(255, 255, 255, .08);
+  background: #151515;
 }
 
 .faux-panel-heading,
@@ -556,7 +557,7 @@
   align-items: center;
 }
 
-.faux-panel-heading { justify-content: space-between; margin-bottom: 11px; }
+.faux-panel-heading { justify-content: space-between; gap: 12px; padding: 0 2px; }
 
 .faux-panel-heading h2,
 .faux-chat-heading h2 {
@@ -565,81 +566,135 @@
   font-weight: 700;
 }
 
-.faux-panel-heading > span {
-  color: rgba(255, 255, 255, .4);
-  font-size: 9px;
+.faux-panel-heading h2 {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
 }
 
-.faux-vote-list { display: grid; gap: 6px; }
+.faux-panel-heading > strong {
+  min-width: 40px;
+  color: #fff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 32px;
+  text-align: center;
+}
+
+.faux-vote-countdown {
+  height: 6px;
+  margin: 5px 2px 8px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, .07);
+}
+
+.faux-vote-countdown i {
+  height: 100%;
+  display: block;
+  border-radius: inherit;
+  background: #fff;
+  transition: width 900ms linear;
+}
+
+.faux-vote-list { display: grid; gap: 4px; }
 
 .faux-vote-list button {
   position: relative;
-  height: 40px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
   overflow: hidden;
-  padding: 0 10px;
-  border: 1px solid rgba(255, 255, 255, .08);
-  border-radius: 7px;
-  color: rgba(255, 255, 255, .75);
-  background: rgba(255, 255, 255, .025);
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: #fff;
+  background: rgba(255, 255, 255, .035);
   cursor: pointer;
   transition: border-color 150ms ease, color 150ms ease, transform 150ms ease;
 }
 
 .faux-vote-list button:hover {
   z-index: 2;
-  border-color: rgba(255, 255, 255, .23);
-  color: #fff;
-  transform: translateX(-2px);
+  background: rgba(255, 255, 255, .07);
+  transform: translateX(-1px);
 }
 
-.faux-vote-list button.winning { border-color: rgba(255, 46, 136, .17); }
-.faux-vote-list button.selected { border-color: rgba(255, 75, 153, .7); color: #fff; }
+.faux-vote-list button.winning,
+.faux-vote-list button.selected {
+  border-width: 2px;
+  border-color: var(--vote-color);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--vote-color) 30%, transparent);
+}
 
 .faux-vote-fill {
   position: absolute;
   inset: 0 auto 0 0;
-  background: linear-gradient(90deg, rgba(255, 46, 136, .13), rgba(157, 83, 255, .055));
-  transition: width 280ms ease;
+  opacity: .25;
+  background: var(--vote-color);
+  transition: width 680ms cubic-bezier(.22, 1, .36, 1);
 }
 
-.faux-vote-list button > span,
-.faux-vote-list button > em { position: relative; z-index: 1; }
+.faux-vote-list button > span { position: relative; z-index: 1; }
 
-.faux-vote-list button > span {
+.faux-vote-label {
   min-width: 0;
+  flex: 1;
   overflow: hidden;
-  font-size: 10px;
+  font-size: 12px;
+  font-weight: 650;
   text-overflow: ellipsis;
+  text-align: left;
   white-space: nowrap;
 }
 
-.faux-vote-list button > span b { margin-right: 5px; font-size: 13px; }
+.faux-vote-label b { margin-right: 6px; font-size: 13px; }
 
-.faux-vote-list button > em {
+.faux-vote-meta {
   display: flex;
   align-items: center;
-  gap: 5px;
-  color: rgba(255, 255, 255, .35);
-  font-size: 8px;
+  gap: 7px;
+  flex: 0 0 auto;
+}
+
+.faux-vote-meta em {
   font-style: normal;
   white-space: nowrap;
+}
+
+.faux-vote-action {
+  min-width: 42px;
+  padding: 5px 9px;
+  border-radius: 99px;
+  color: #fff;
+  background: rgba(255, 255, 255, .08);
+  font-size: 9px;
+  font-weight: 750;
+  text-align: center;
+}
+
+.faux-up-next {
+  padding: 4px 8px;
+  border-radius: 99px;
+  color: #050507;
+  background: #fff;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .7px;
+  text-align: center;
   text-transform: uppercase;
 }
 
-.faux-vote-list button.selected > em { color: #ff82b7; }
-
-.faux-vote-list button > em strong {
-  min-width: 24px;
-  padding: 3px 5px;
-  border-radius: 99px;
-  color: rgba(255, 255, 255, .7);
-  background: rgba(255, 255, 255, .07);
-  font-size: 9px;
-  text-align: center;
+.faux-vote-meta strong {
+  min-width: 27px;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 900;
+  text-align: right;
 }
 
 .faux-prompt-form,
