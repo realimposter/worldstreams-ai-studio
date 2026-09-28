@@ -1,0 +1,38 @@
+{
+  "publicId": "CVyQbC5FNCcE",
+  "title": "Timmy’s Adventures",
+  "model": "google-gemini-omni-1-1",
+  "generatedAt": "2026-09-28T00:17:00.000Z",
+  "sourceDurationSeconds": 10,
+  "playbackDurationSeconds": 15,
+  "segments": [
+    {
+      "id": "segment-1",
+      "icon": "🕯️",
+      "label": "Follow the distant lantern",
+      "prompt": "The child notices a warm distant lantern swinging beyond twisted roots, carefully follows it across a fragile plank, and reaches a foggy clearing as the light suddenly stops.",
+      "videoUrl": "/streams/CVyQbC5FNCcE/segment-1.mp4"
+    },
+    {
+      "id": "segment-2",
+      "icon": "🪜",
+      "label": "Climb into the clock tower",
+      "prompt": "The child reaches an immense ruined clock tower, climbs moving gears and hanging chains while dust falls, then pulls onto a high ledge overlooking the wasteland.",
+      "videoUrl": "/streams/CVyQbC5FNCcE/segment-2.mp4"
+    },
+    {
+      "id": "segment-3",
+      "icon": "🫥",
+      "label": "Hide from the approaching shadow",
+      "prompt": "A towering many-legged shadow approaches through the fog. The child slips behind broken machinery, stays perfectly still as it passes close, then quietly emerges.",
+      "videoUrl": "/streams/CVyQbC5FNCcE/segment-3.mp4"
+    },
+    {
+      "id": "segment-4",
+      "icon": "🔓",
+      "label": "Unlock the rusted gate",
+      "prompt": "The child finds a massive rusted gate tangled in roots, turns an ancient key with both hands, and the gate groans open to reveal an eerie glowing passage.",
+      "videoUrl": "/streams/CVyQbC5FNCcE/segment-4.mp4"
+    }
+  ]
+}
