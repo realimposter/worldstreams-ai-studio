@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import streamSequences from '../../shared/stream-sequences.json';
 import type { Worldstream } from '../types';
 import { createFauxStreamProfile, seededViewerCount } from './fauxStream';
 
@@ -38,5 +39,13 @@ describe('faux Worldstream profiles', () => {
     expect(seededViewerCount(item)).toBe(seededViewerCount(item));
     expect(seededViewerCount(item)).toBeGreaterThanOrEqual(84);
     expect(seededViewerCount(item)).toBeLessThan(824);
+  });
+
+  it('keeps four generated clip prompts aligned with every configured world', () => {
+    for (const [title, choices] of Object.entries(streamSequences)) {
+      const profile = createFauxStreamProfile(world(title));
+      expect(profile.choices).toEqual(choices);
+      expect(new Set(choices.map(choice => choice.label)).size).toBe(4);
+    }
   });
 });

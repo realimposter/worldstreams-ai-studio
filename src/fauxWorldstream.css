@@ -325,6 +325,8 @@
   background: #020203;
 }
 
+.faux-feed-video { animation: faux-clip-in 620ms ease both; }
+
 .faux-feed > .faux-feed-image {
   object-fit: cover;
   animation: faux-camera 15s ease-in-out both;
@@ -379,6 +381,32 @@
   font-weight: 700;
   letter-spacing: .04em;
   text-transform: uppercase;
+}
+
+.faux-clip-progress {
+  position: absolute;
+  top: 17px;
+  right: 15px;
+  display: flex;
+  gap: 5px;
+  padding: 7px 8px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 99px;
+  background: rgba(8, 8, 10, .58);
+  backdrop-filter: blur(9px);
+}
+
+.faux-clip-progress i {
+  width: 17px;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, .24);
+}
+
+.faux-clip-progress i.active {
+  background: linear-gradient(90deg, #ff2e88, #ab61ff);
+  box-shadow: 0 0 8px rgba(255, 46, 136, .52);
 }
 
 .faux-feed-controls {
@@ -863,6 +891,11 @@
   100% { transform: scale(1.055) translate3d(-1%, .6%, 0); }
 }
 
+@keyframes faux-clip-in {
+  from { opacity: 0; filter: brightness(.65) saturate(.75); transform: scale(1.012); }
+  to { opacity: 1; filter: brightness(1) saturate(1); transform: scale(1); }
+}
+
 @keyframes faux-message {
   from { opacity: 0; transform: translateY(5px); }
   to { opacity: 1; transform: translateY(0); }
@@ -905,6 +938,8 @@
   .faux-viewers { padding: 0 7px; }
   .faux-stage-wrap { aspect-ratio: 16 / 10; }
   .faux-live-badge { top: 9px; left: 9px; }
+  .faux-clip-progress { top: 10px; right: 9px; }
+  .faux-clip-progress i { width: 12px; }
   .faux-feed-controls { left: 8px; bottom: 8px; }
   .faux-feed-controls > span { display: none; }
   .faux-scene-timer { right: 9px; bottom: 9px; }
@@ -920,6 +955,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .faux-worldstream,
+  .faux-feed-video,
   .faux-feed > .faux-feed-image,
   .faux-chat-message,
   .faux-chat-system,

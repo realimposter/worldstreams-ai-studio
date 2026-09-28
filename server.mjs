@@ -119,6 +119,34 @@ async function loadWorldDetail(publicId) {
   }
 }
 
+async function loadStreamSequence(publicId) {
+  const assetDirectory = isProduction ? 'dist' : 'public';
+  const manifestPath = join(directory, assetDirectory, 'streams', publicId, 'manifest.json');
+  try {
+    const body = JSON.parse(await readFile(manifestPath, 'utf8'));
+    const segments = (Array.isArray(body?.segments) ? body.segments : [])
+      .map((segment, index) => ({
+        id: cleanText(segment?.id, 40) || `segment-${index + 1}`,
+        icon: cleanText(segment?.icon, 8),
+        label: cleanText(segment?.label, 140),
+        prompt: cleanText(segment?.prompt, 1_200),
+        videoUrl: typeof segment?.videoUrl === 'string'
+          && /^\/streams\/[A-Za-z0-9_-]{4,80}\/segment-[1-4]\.mp4$/.test(segment.videoUrl)
+          ? segment.videoUrl
+          : '',
+      }))
+      .filter(segment => segment.label && segment.videoUrl)
+      .slice(0, 4);
+    return {
+      model: cleanText(body?.model, 80),
+      playbackDurationSeconds: 15,
+      segments,
+    };
+  } catch {
+    return { model: '', playbackDurationSeconds: 15, segments: [] };
+  }
+}
+
 function readJsonBody(request) {
   return new Promise((resolve, reject) => {
     let body = '';
@@ -518,6 +546,15 @@ async function handleApi(request, response, url) {
       source: catalog.source,
       updatedAt: new Date(catalog.fetchedAt).toISOString(),
     });
+    return true;
+  }
+
+  const streamSequenceMatch = request.method === 'GET'
+    ? url.pathname.match(/^\/api\/worldstreams\/([A-Za-z0-9_-]{4,80})\/sequence$/)
+    : null;
+  if (streamSequenceMatch) {
+    const sequence = await loadStreamSequence(streamSequenceMatch[1]);
+    sendJson(response, 200, sequence);
     return true;
   }
 

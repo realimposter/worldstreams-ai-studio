@@ -1,0 +1,104 @@
+{
+  "Timmy’s Adventures": [
+    { "icon": "🕯️", "label": "Follow the distant lantern" },
+    { "icon": "🪜", "label": "Climb into the clock tower" },
+    { "icon": "🫥", "label": "Hide from the approaching shadow" },
+    { "icon": "🔓", "label": "Unlock the rusted gate" }
+  ],
+  "Space Mission": [
+    { "icon": "🚀", "label": "Signal the stranded dropship" },
+    { "icon": "🛡️", "label": "Hold the canyon checkpoint" },
+    { "icon": "📡", "label": "Decode the enemy transmission" },
+    { "icon": "🌌", "label": "Enter the unstable portal" }
+  ],
+  "Magic Chronicles": [
+    { "icon": "🗺️", "label": "Trust the talking map" },
+    { "icon": "✨", "label": "Cast the forbidden spell" },
+    { "icon": "🏰", "label": "Search the floating citadel" },
+    { "icon": "🦊", "label": "Follow the crystal fox" }
+  ],
+  "Central Perk Chronicles": [
+    { "icon": "✉️", "label": "Reveal the mysterious invitation" },
+    { "icon": "☕", "label": "Challenge everyone to a coffee contest" },
+    { "icon": "🎤", "label": "Take over open-mic night" },
+    { "icon": "🛋️", "label": "Confess the secret on the orange couch" }
+  ],
+  "Interdimensional Chaos Trip": [
+    { "icon": "🌀", "label": "Jump into the unstable dimension" },
+    { "icon": "🧪", "label": "Test the glowing canister" },
+    { "icon": "🤖", "label": "Negotiate with the robot guards" },
+    { "icon": "🏃", "label": "Run before reality collapses" }
+  ],
+  "Land of Ooo": [
+    { "icon": "🍬", "label": "Rescue the marshmallow village" },
+    { "icon": "🗡️", "label": "Challenge the ice guardian" },
+    { "icon": "🎵", "label": "Sing to calm the storm" },
+    { "icon": "🐕", "label": "Stretch across the canyon" }
+  ],
+  "Sector 7 Meltdown": [
+    { "icon": "💡", "label": "Investigate the glowing basement" },
+    { "icon": "🍩", "label": "Raid the emergency snack supply" },
+    { "icon": "☎️", "label": "Call the suspicious technician" },
+    { "icon": "🚗", "label": "Escape across town" }
+  ],
+  "Skybound Chase": [
+    { "icon": "🪽", "label": "Dive through the narrow arch" },
+    { "icon": "🏹", "label": "Fire the tether at its wing" },
+    { "icon": "⛈️", "label": "Climb above the thunderhead" },
+    { "icon": "🏔️", "label": "Land on the ruined peak" }
+  ],
+  "Asphalt Hoops Showdown": [
+    { "icon": "🏀", "label": "Drive hard to the rim" },
+    { "icon": "🎯", "label": "Take the corner three" },
+    { "icon": "🤝", "label": "Set up the alley-oop" },
+    { "icon": "⏱️", "label": "Hold for the last shot" }
+  ],
+  "Neo Apex Skyline": [
+    { "icon": "🏃", "label": "Wall-run across the neon divide" },
+    { "icon": "⚡", "label": "Disable the drone network" },
+    { "icon": "🕵️", "label": "Steal the Citadel access key" },
+    { "icon": "🚁", "label": "Hijack the patrol aircraft" }
+  ],
+  "Paws of the Sunken Grove": [
+    { "icon": "🐾", "label": "Paw the glowing floor tile" },
+    { "icon": "🎒", "label": "Search the tiny backpack" },
+    { "icon": "🦋", "label": "Follow the blue butterfly" },
+    { "icon": "🌿", "label": "Squeeze through the hidden roots" }
+  ],
+  "Dimension Hoppers": [
+    { "icon": "🥸", "label": "Pretend to belong here" },
+    { "icon": "🌀", "label": "Open another portal immediately" },
+    { "icon": "👽", "label": "Ask the locals for directions" },
+    { "icon": "🔬", "label": "Collect a dangerously alive sample" }
+  ],
+  "Dragon Queen's Ascent": [
+    { "icon": "🐉", "label": "Land beyond the castle walls" },
+    { "icon": "👑", "label": "Demand the throne at sunrise" },
+    { "icon": "🔥", "label": "Burn the enemy siege line" },
+    { "icon": "🤝", "label": "Accept the northern alliance" }
+  ],
+  "Dust and Rust Pursuit": [
+    { "icon": "🚙", "label": "Leap onto the armored tanker" },
+    { "icon": "💥", "label": "Detonate the canyon bridge" },
+    { "icon": "🛞", "label": "Cut through the salt flats" },
+    { "icon": "⛽", "label": "Risk a moving fuel transfer" }
+  ],
+  "Abyssal Tide": [
+    { "icon": "🌊", "label": "Dive toward the bioluminescent signal" },
+    { "icon": "🐋", "label": "Call the ancient sea guardian" },
+    { "icon": "🏝️", "label": "Return to the floating village" },
+    { "icon": "🔱", "label": "Recover the sunken relic" }
+  ],
+  "Emerald Vanguard": [
+    { "icon": "🛡️", "label": "Raise the emerald shield" },
+    { "icon": "💚", "label": "Channel the unstable core" },
+    { "icon": "🪐", "label": "Evacuate the moon colony" },
+    { "icon": "⚔️", "label": "Board the enemy flagship" }
+  ],
+  "The Memory Lantern": [
+    { "icon": "🏮", "label": "Repair the lantern before dawn" },
+    { "icon": "🎸", "label": "Play the forgotten family song" },
+    { "icon": "🌼", "label": "Cross the marigold bridge" },
+    { "icon": "💀", "label": "Ask the skeletal artisan for help" }
+  ]
+}

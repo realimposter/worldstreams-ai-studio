@@ -48,6 +48,12 @@ try {
     throw new Error('World detail endpoint failed.');
   }
 
+  const sequenceResponse = await fetch(`${baseUrl}/api/worldstreams/${encodeURIComponent(firstWorld.publicId)}/sequence`);
+  const sequence = await sequenceResponse.json();
+  if (!sequenceResponse.ok || !Array.isArray(sequence.segments) || sequence.playbackDurationSeconds !== 15) {
+    throw new Error('Stream sequence endpoint failed.');
+  }
+
   const discoveryResponse = await fetch(`${baseUrl}/api/discover`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -58,7 +64,7 @@ try {
     throw new Error('Discovery fallback failed.');
   }
 
-  console.log(`Smoke test passed with ${catalog.worldstreams.length} worlds and an interactive stream detail.`);
+  console.log(`Smoke test passed with ${catalog.worldstreams.length} worlds and four-part stream support.`);
 } finally {
   child.kill('SIGTERM');
 }
