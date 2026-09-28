@@ -154,7 +154,6 @@ function FauxFeed({
       )}
       <div className="faux-feed-grade" />
       <div className="faux-feed-grain" />
-      <div className="faux-live-badge"><i /> Live stream</div>
       <div className="faux-feed-controls">
         <button type="button" onClick={onToggleMuted} aria-label={muted ? 'Unmute stream' : 'Mute stream'}>
           <VolumeIcon muted={muted} />
@@ -277,7 +276,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
     setClipCycle(cycle => cycle + 1);
     setSelectedVote(null);
     setVoteCounts(roundVoteCounts(viewerCount, (winner + 1) % profile.choices.length, profile.choices.length));
-    setMessages(items => [...items.slice(-13), {
+    setMessages(items => [...items.slice(-23), {
       id: `system-${messageId.current++}`,
       name: 'Worldstream',
       color: '#ff2e88',
@@ -288,18 +287,21 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
   }, [activeSegmentIndex, clipCycle, profile.choices, secondsLeft, selectedVote, sequence, viewerCount]);
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
+    let timer = 0;
+    const addMessage = () => {
       const index = activityIndex.current++;
       const names = ['nightbyte', 'pixelpilot', 'mossboss', 'juno_tv', 'orbital', 'nova_gg'];
       const colors = ['#f472b6', '#81baec', '#7dd3a8', '#c4a7ff', '#ffb86c', '#67d8e8'];
-      setMessages(items => [...items.slice(-13), {
+      setMessages(items => [...items.slice(-23), {
         id: `activity-${messageId.current++}`,
         name: names[index % names.length],
         color: colors[index % colors.length],
         text: profile.activity[index % profile.activity.length],
       }]);
-    }, 2_400);
-    return () => window.clearInterval(timer);
+      timer = window.setTimeout(addMessage, 900 + Math.round(Math.random() * 2_700));
+    };
+    timer = window.setTimeout(addMessage, 650 + Math.round(Math.random() * 1_800));
+    return () => window.clearTimeout(timer);
   }, [profile]);
 
   useEffect(() => {
@@ -331,7 +333,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
       return counts.map((count, choiceIndex) => choiceIndex === index ? winningCount : count);
     });
     setSelectedVote(index);
-    setMessages(items => [...items.slice(-13), {
+    setMessages(items => [...items.slice(-23), {
       id: `vote-${messageId.current++}`,
       name: 'Worldstream',
       color: '#ff2e88',
@@ -348,7 +350,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
     if (!value) return;
     setQueuedPrompt(value);
     setPrompt('');
-    setMessages(items => [...items.slice(-13), {
+    setMessages(items => [...items.slice(-23), {
       id: `prompt-${messageId.current++}`,
       name: 'Worldstream',
       color: '#ff2e88',
@@ -361,7 +363,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
     event.preventDefault();
     const value = chatInput.trim();
     if (!value) return;
-    setMessages(items => [...items.slice(-13), {
+    setMessages(items => [...items.slice(-23), {
       id: `you-${messageId.current++}`,
       name: 'you',
       color: '#ffffff',

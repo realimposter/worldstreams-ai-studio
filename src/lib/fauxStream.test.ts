@@ -30,8 +30,8 @@ describe('faux Worldstream profiles', () => {
   it('provides a complete profile for future catalog worlds', () => {
     const profile = createFauxStreamProfile(world('A Newly Published World'));
     expect(profile.choices).toHaveLength(4);
-    expect(profile.messages).toHaveLength(5);
-    expect(profile.activity.length).toBeGreaterThan(4);
+    expect(profile.messages.length).toBeGreaterThanOrEqual(16);
+    expect(profile.activity.length).toBeGreaterThanOrEqual(20);
   });
 
   it('uses a stable believable viewer count', () => {
