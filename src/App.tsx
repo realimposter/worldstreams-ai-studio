@@ -2,7 +2,9 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import FauxWorldstreamPlayer from './FauxWorldstream';
 import {
   displayViewerCount,
+  isAlwaysLiveWorld,
   sectionWorlds,
+  sortByActivity,
   statusColor,
   statusLabel,
   viewerLabel,
@@ -111,6 +113,7 @@ function WorldCard({ world, featured = false, onOpen, reason }: {
   onOpen: (world: Worldstream) => void;
   reason?: string;
 }) {
+  const displayedStatus = isAlwaysLiveWorld(world.publicId) ? 'live' : world.status;
   return (
     <button
       className={`world-card ${featured ? 'world-card-featured' : ''}`}
@@ -122,10 +125,10 @@ function WorldCard({ world, featured = false, onOpen, reason }: {
         <WorldMedia world={world} eager={featured} />
         <div className="status-chip">
           <span
-            className={world.status === 'booting' ? 'status-dot pulse' : 'status-dot'}
-            style={{ backgroundColor: statusColor(world.status) }}
+            className={displayedStatus === 'booting' ? 'status-dot pulse' : 'status-dot'}
+            style={{ backgroundColor: statusColor(displayedStatus) }}
           />
-          {statusLabel(world.status)}
+          {statusLabel(displayedStatus)}
         </div>
         <span className="play-overlay"><span><PlayIcon /></span></span>
       </div>
@@ -343,7 +346,7 @@ function Sidebar({ worlds, onOpen }: { worlds: Worldstream[]; onOpen: (world: Wo
         {worlds.slice(0, 32).map(world => (
           <button type="button" key={world.publicId} onClick={() => onOpen(world)} aria-label={`Watch ${world.title}`}>
             <Avatar world={world} size="rail" />
-            <i style={{ background: statusColor(world.status) }} />
+            <i style={{ background: statusColor(isAlwaysLiveWorld(world.publicId) ? 'live' : world.status) }} />
             <span className="sidebar-tooltip">{world.title}</span>
           </button>
         ))}
@@ -465,6 +468,7 @@ export default function App() {
   const [selectedWorld, setSelectedWorld] = useState<Worldstream | null>(null);
 
   const sections = useMemo(() => sectionWorlds(worlds), [worlds]);
+  const orderedWorlds = useMemo(() => sortByActivity(worlds), [worlds]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -496,7 +500,7 @@ export default function App() {
     <div className="app-shell">
       <Header />
       <div className="app-body">
-        <Sidebar worlds={worlds} onOpen={setSelectedWorld} />
+        <Sidebar worlds={orderedWorlds} onOpen={setSelectedWorld} />
         <main>
           <section className="hero">
             <div className="hero-glow hero-glow-one" />
@@ -556,7 +560,7 @@ export default function App() {
         <FauxWorldstreamPlayer
           key={selectedWorld.publicId}
           world={selectedWorld}
-          worlds={worlds}
+          worlds={orderedWorlds}
           onSelectWorld={setSelectedWorld}
           onClose={() => setSelectedWorld(null)}
         />

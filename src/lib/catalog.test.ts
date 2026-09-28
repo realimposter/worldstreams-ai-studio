@@ -28,6 +28,19 @@ describe('catalog helpers', () => {
     expect(sections.featured.map(item => item.publicId)).toEqual(['live', 'idle']);
   });
 
+  it('pins Timmy and Paws ahead of every other live world', () => {
+    const sections = sectionWorlds([
+      world({ publicId: 'regular-live', status: 'live', viewerCount: 999 }),
+      world({ publicId: 'rb6Nk00MFXzl', title: 'Paws' }),
+      world({ publicId: 'CVyQbC5FNCcE', title: 'Timmy' }),
+    ]);
+    expect(sections.featured.map(item => item.publicId)).toEqual([
+      'CVyQbC5FNCcE',
+      'rb6Nk00MFXzl',
+      'regular-live',
+    ]);
+  });
+
   it('separates games from the trending show rail', () => {
     const sections = sectionWorlds([
       world({ publicId: 'show' }),

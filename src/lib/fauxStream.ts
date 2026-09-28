@@ -249,12 +249,12 @@ const defaultStory: StoryProfile = {
 };
 
 const people = [
-  { name: 'nova.wave', color: '#f472b6' },
+  { name: 'nightbyte', color: '#f472b6' },
   { name: 'pixelpilot', color: '#81baeC' },
-  { name: 'mossy', color: '#7dd3a8' },
-  { name: 'juno.jpg', color: '#c4a7ff' },
-  { name: 'afterimage', color: '#ffb86c' },
-  { name: 'orbiting', color: '#67d8e8' },
+  { name: 'mossboss', color: '#7dd3a8' },
+  { name: 'juno_tv', color: '#c4a7ff' },
+  { name: 'orbital', color: '#ffb86c' },
+  { name: 'nova_gg', color: '#67d8e8' },
 ];
 
 function message(id: string, index: number, text: string): FauxChatMessage {
@@ -264,25 +264,26 @@ function message(id: string, index: number, text: string): FauxChatMessage {
 
 export function createFauxStreamProfile(world: Worldstream): FauxStreamProfile {
   const story = storyProfiles[world.title] || defaultStory;
-  const shortTitle = world.title.length > 28 ? 'this world' : world.title;
   return {
     ...story,
     messages: [
-      message(`${world.publicId}-1`, 0, `The atmosphere in ${shortTitle} is incredible.`),
-      message(`${world.publicId}-2`, 1, `Vote one. I want to see where this goes 👀`),
-      message(`${world.publicId}-3`, 2, 'That transition was so smooth.'),
-      message(`${world.publicId}-4`, 3, `The lighting in this scene is wild ✨`),
-      message(`${world.publicId}-5`, 4, `Wait, did anyone else notice that in the background?`),
+      message(`${world.publicId}-1`, 0, 'W intro'),
+      message(`${world.publicId}-2`, 1, 'vote 2 chat'),
+      message(`${world.publicId}-3`, 2, 'no way 😭'),
+      message(`${world.publicId}-4`, 3, 'clean transition'),
+      message(`${world.publicId}-5`, 4, 'LOOK BEHIND'),
     ],
     activity: [
-      'This is getting intense.',
-      'Vote one is pulling ahead!',
-      'The world actually remembered our last choice.',
-      'That camera move was beautiful.',
-      'No way, look at the background.',
-      'I need to see what happens next.',
-      `Best scene in ${shortTitle} so far.`,
-      'The details keep changing every time I look.',
+      'W',
+      'LMAO',
+      'go go go',
+      'chat??',
+      'nahhh 😭',
+      '2',
+      '🔥🔥🔥',
+      'RUN',
+      'clean',
+      'wait WHAT',
     ],
   };
 }

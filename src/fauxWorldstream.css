@@ -246,6 +246,8 @@
   box-shadow: 0 0 0 2px rgba(255, 46, 136, .18), 0 0 18px rgba(255, 46, 136, .16);
 }
 
+.faux-rail-worlds .faux-avatar { border-radius: 50%; }
+
 .faux-rail-worlds button > i {
   position: absolute;
   right: 8px;
@@ -383,32 +385,6 @@
   text-transform: uppercase;
 }
 
-.faux-clip-progress {
-  position: absolute;
-  top: 17px;
-  right: 15px;
-  display: flex;
-  gap: 5px;
-  padding: 7px 8px;
-  border: 1px solid rgba(255, 255, 255, .12);
-  border-radius: 99px;
-  background: rgba(8, 8, 10, .58);
-  backdrop-filter: blur(9px);
-}
-
-.faux-clip-progress i {
-  width: 17px;
-  height: 3px;
-  overflow: hidden;
-  border-radius: 99px;
-  background: rgba(255, 255, 255, .24);
-}
-
-.faux-clip-progress i.active {
-  background: linear-gradient(90deg, #ff2e88, #ab61ff);
-  box-shadow: 0 0 8px rgba(255, 46, 136, .52);
-}
-
 .faux-feed-controls {
   position: absolute;
   left: 13px;
@@ -434,13 +410,6 @@
 }
 
 .faux-feed-controls button:hover { background: rgba(255, 255, 255, .18); transform: scale(1.05); }
-
-.faux-feed-controls > span {
-  margin-left: 4px;
-  color: rgba(255, 255, 255, .65);
-  font-size: 10px;
-  text-shadow: 0 1px 4px #000;
-}
 
 .faux-scene-timer {
   position: absolute;
@@ -781,40 +750,21 @@
 }
 
 .faux-chat-message {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin-bottom: 9px;
+  margin-bottom: 6px;
+  color: rgba(255, 255, 255, .74);
+  font-size: 10px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
   animation: faux-message 220ms ease both;
 }
 
-.faux-chat-avatar {
-  width: 24px;
-  height: 24px;
-  flex: 0 0 24px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  color: #0b0b0d;
-  font-size: 9px;
-  font-weight: 900;
-}
-
-.faux-chat-message > span:last-child { min-width: 0; padding-top: 1px; }
-
 .faux-chat-message strong {
-  display: block;
-  margin-bottom: 2px;
-  font-size: 9px;
-  font-weight: 700;
+  font-size: 10px;
+  font-weight: 800;
 }
 
 .faux-chat-message strong + span {
-  display: block;
-  color: rgba(255, 255, 255, .66);
-  font-size: 10px;
-  line-height: 1.32;
-  overflow-wrap: anywhere;
+  color: inherit;
 }
 
 .faux-chat-system {
@@ -938,10 +888,7 @@
   .faux-viewers { padding: 0 7px; }
   .faux-stage-wrap { aspect-ratio: 16 / 10; }
   .faux-live-badge { top: 9px; left: 9px; }
-  .faux-clip-progress { top: 10px; right: 9px; }
-  .faux-clip-progress i { width: 12px; }
   .faux-feed-controls { left: 8px; bottom: 8px; }
-  .faux-feed-controls > span { display: none; }
   .faux-scene-timer { right: 9px; bottom: 9px; }
   .faux-scene-strip > div { padding: 10px 9px; }
   .faux-world-info { padding: 17px 15px 15px; }

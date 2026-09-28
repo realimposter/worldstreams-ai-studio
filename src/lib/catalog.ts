@@ -1,5 +1,11 @@
 import type { Worldstream } from '../types';
 
+const alwaysLiveWorldOrder = ['CVyQbC5FNCcE', 'rb6Nk00MFXzl'];
+
+export function isAlwaysLiveWorld(publicId: string) {
+  return alwaysLiveWorldOrder.includes(publicId);
+}
+
 export function worldHue(id: string) {
   let hash = 0;
   for (const character of id) hash = ((hash << 5) - hash + character.charCodeAt(0)) | 0;
@@ -39,7 +45,9 @@ export function viewerLabel(value: number | null) {
 
 export function sortByActivity(worlds: Worldstream[]) {
   return [...worlds].sort((left, right) => (
-    Number(right.status === 'live') - Number(left.status === 'live')
+    (alwaysLiveWorldOrder.indexOf(left.publicId) === -1 ? Number.MAX_SAFE_INTEGER : alwaysLiveWorldOrder.indexOf(left.publicId))
+    - (alwaysLiveWorldOrder.indexOf(right.publicId) === -1 ? Number.MAX_SAFE_INTEGER : alwaysLiveWorldOrder.indexOf(right.publicId))
+    || Number(isAlwaysLiveWorld(right.publicId) || right.status === 'live') - Number(isAlwaysLiveWorld(left.publicId) || left.status === 'live')
     || Number(right.viewerCount || 0) - Number(left.viewerCount || 0)
   ));
 }

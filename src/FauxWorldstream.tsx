@@ -1,6 +1,6 @@
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { createFauxStreamProfile, seededViewerCount, type FauxChatMessage } from './lib/fauxStream';
-import { statusColor, worldHue } from './lib/catalog';
+import { isAlwaysLiveWorld, statusColor, worldHue } from './lib/catalog';
 import type { Worldstream } from './types';
 import './fauxWorldstream.css';
 
@@ -30,18 +30,6 @@ function ArrowLeftIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="m15 18-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function PlayPauseIcon({ playing }: { playing: boolean }) {
-  return playing ? (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M6.5 5h4v14h-4zM13.5 5h4v14h-4z" />
-    </svg>
-  ) : (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="m8 5 11 7-11 7V5Z" />
     </svg>
   );
 }
@@ -92,23 +80,17 @@ function StreamAvatar({ world, small = false }: { world: Worldstream; small?: bo
 
 function FauxFeed({
   world,
-  playing,
   muted,
   segmentIndex,
   clipCycle,
   clipUrl,
-  totalSegments,
-  onTogglePlayback,
   onToggleMuted,
 }: {
   world: Worldstream;
-  playing: boolean;
   muted: boolean;
   segmentIndex: number;
   clipCycle: number;
   clipUrl: string;
-  totalSegments: number;
-  onTogglePlayback: () => void;
   onToggleMuted: () => void;
 }) {
   const [generatedFailed, setGeneratedFailed] = useState(false);
@@ -124,13 +106,6 @@ function FauxFeed({
     setFallbackVideoFailed(false);
   }, [clipUrl, world.publicId]);
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (playing) void video.play().catch(() => undefined);
-    else video.pause();
-  }, [playing, showVideo, videoUrl]);
-
   const prepareVideo = () => {
     const video = videoRef.current;
     if (!video || !Number.isFinite(video.duration) || video.duration <= 0) return;
@@ -141,7 +116,7 @@ function FauxFeed({
       video.playbackRate = 1;
       video.currentTime = (segmentIndex * 15) % video.duration;
     }
-    if (playing) void video.play().catch(() => undefined);
+    void video.play().catch(() => undefined);
   };
 
   const handleVideoError = () => {
@@ -150,7 +125,7 @@ function FauxFeed({
   };
 
   return (
-    <div className={`faux-feed ${playing ? 'faux-feed-playing' : 'faux-feed-paused'}`}>
+    <div className="faux-feed">
       {showVideo ? (
         <video
           key={`${videoUrl}-${segmentIndex}-${clipCycle}`}
@@ -180,19 +155,10 @@ function FauxFeed({
       <div className="faux-feed-grade" />
       <div className="faux-feed-grain" />
       <div className="faux-live-badge"><i /> Live stream</div>
-      <div className="faux-clip-progress" aria-label={`Clip ${segmentIndex + 1} of ${totalSegments}`}>
-        {Array.from({ length: totalSegments }, (_, index) => (
-          <i key={index} className={index === segmentIndex ? 'active' : ''} />
-        ))}
-      </div>
       <div className="faux-feed-controls">
-        <button type="button" onClick={onTogglePlayback} aria-label={playing ? 'Pause stream' : 'Play stream'}>
-          <PlayPauseIcon playing={playing} />
-        </button>
         <button type="button" onClick={onToggleMuted} aria-label={muted ? 'Unmute stream' : 'Mute stream'}>
           <VolumeIcon muted={muted} />
         </button>
-        <span>{usingGeneratedClip ? 'Omni sequence' : showVideo ? 'Live video feed' : 'Generated scene preview'} · clip {segmentIndex + 1}/{totalSegments}</span>
       </div>
     </div>
   );
@@ -204,11 +170,8 @@ function ChatMessage({ message }: { message: FauxChatMessage }) {
   }
   return (
     <div className="faux-chat-message">
-      <span className="faux-chat-avatar" style={{ backgroundColor: message.color }}>{message.name.slice(0, 1).toUpperCase()}</span>
-      <span>
-        <strong style={{ color: message.color }}>{message.name}</strong>
-        <span>{message.text}</span>
-      </span>
+      <strong style={{ color: message.color }}>{message.name}:</strong>{' '}
+      <span>{message.text}</span>
     </div>
   );
 }
@@ -223,10 +186,9 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
 }) {
   const profile = useMemo(() => createFauxStreamProfile(world), [world]);
   const viewerCount = useMemo(() => seededViewerCount(world), [world]);
-  const isAlwaysLive = world.publicId === 'CVyQbC5FNCcE' || world.publicId === 'rb6Nk00MFXzl';
+  const isAlwaysLive = isAlwaysLiveWorld(world.publicId);
   const [resolvedWorld, setResolvedWorld] = useState(world);
   const [detailLoading, setDetailLoading] = useState(true);
-  const [playing, setPlaying] = useState(true);
   const [muted, setMuted] = useState(true);
   const [secondsLeft, setSecondsLeft] = useState(15);
   const [activeSegmentIndex, setActiveSegmentIndex] = useState(0);
@@ -299,12 +261,11 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
   }, [onClose]);
 
   useEffect(() => {
-    if (!playing) return;
     const timer = window.setInterval(() => {
       setSecondsLeft(current => Math.max(0, current - 1));
     }, 1_000);
     return () => window.clearInterval(timer);
-  }, [playing]);
+  }, []);
 
   useEffect(() => {
     if (secondsLeft !== 0 || transitionedCycle.current === clipCycle) return;
@@ -320,7 +281,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
       id: `system-${messageId.current++}`,
       name: 'Worldstream',
       color: '#ff2e88',
-      text: `“${winnerLabel}” won the vote and is now playing.`,
+      text: `Next: “${winnerLabel}”`,
       system: true,
     }]);
     setSecondsLeft(15);
@@ -329,7 +290,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
   useEffect(() => {
     const timer = window.setInterval(() => {
       const index = activityIndex.current++;
-      const names = ['nova.wave', 'pixelpilot', 'mossy', 'juno.jpg', 'afterimage', 'orbiting'];
+      const names = ['nightbyte', 'pixelpilot', 'mossboss', 'juno_tv', 'orbital', 'nova_gg'];
       const colors = ['#f472b6', '#81baec', '#7dd3a8', '#c4a7ff', '#ffb86c', '#67d8e8'];
       setMessages(items => [...items.slice(-13), {
         id: `activity-${messageId.current++}`,
@@ -337,7 +298,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
         color: colors[index % colors.length],
         text: profile.activity[index % profile.activity.length],
       }]);
-    }, 3_800);
+    }, 2_400);
     return () => window.clearInterval(timer);
   }, [profile]);
 
@@ -375,8 +336,8 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
       name: 'Worldstream',
       color: '#ff2e88',
       text: hasGeneratedStory
-        ? `Your vote was added to “${profile.choices[index].label}.”`
-        : `Your vote moved “${profile.choices[index].label}” into the lead.`,
+        ? `Voted: “${profile.choices[index].label}”`
+        : `Leading: “${profile.choices[index].label}”`,
       system: true,
     }]);
   };
@@ -391,7 +352,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
       id: `prompt-${messageId.current++}`,
       name: 'Worldstream',
       color: '#ff2e88',
-      text: `Viewer prompt queued: “${value}”`,
+      text: `Queued: “${value}”`,
       system: true,
     }]);
   };
@@ -447,7 +408,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
                 aria-label={`Open ${item.title}`}
               >
                 <StreamAvatar world={item} />
-                <i style={{ background: statusColor(item.status) }} />
+                <i style={{ background: statusColor(isAlwaysLiveWorld(item.publicId) ? 'live' : item.status) }} />
                 <span>{item.title}</span>
               </button>
             ))}
@@ -459,13 +420,10 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
             <div className="faux-stage-wrap">
               <FauxFeed
                 world={resolvedWorld}
-                playing={playing}
                 muted={muted}
                 segmentIndex={activeSegmentIndex}
                 clipCycle={clipCycle}
                 clipUrl={generatedSegment?.videoUrl || ''}
-                totalSegments={profile.choices.length}
-                onTogglePlayback={() => setPlaying(value => !value)}
                 onToggleMuted={() => setMuted(value => !value)}
               />
               {detailLoading ? <div className="faux-detail-loading"><span /> Tuning into this reality</div> : null}
