@@ -440,7 +440,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
           <strong>{resolvedWorld.title}</strong>
         </div>
         <div className="faux-header-status">
-          <span className="faux-live-status-pill"><i /> {isAlwaysLive ? 'Always live' : 'Live stream'}</span>
+          {!isAlwaysLive && <span className="faux-live-status-pill"><i /> Live stream</span>}
           <span className="faux-viewers"><EyeIcon /> {viewerCount.toLocaleString()}</span>
         </div>
       </header>
@@ -493,7 +493,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
             <div className="faux-world-info">
               <div>
                 <h1>{resolvedWorld.title}</h1>
-                <span className="faux-world-live"><i /> {isAlwaysLive ? 'Always live' : 'Live stream'}</span>
+                {!isAlwaysLive && <span className="faux-world-live"><i /> Live stream</span>}
               </div>
               <p>{resolvedWorld.description}</p>
             </div>
