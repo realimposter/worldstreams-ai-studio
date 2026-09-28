@@ -778,8 +778,6 @@
   border-bottom: 1px solid rgba(255, 255, 255, .06);
 }
 
-.faux-chat-heading > span:first-child { color: #ff4c98; font-size: 10px; }
-
 .faux-chat-filter {
   margin-left: auto;
   color: rgba(255, 255, 255, .35) !important;

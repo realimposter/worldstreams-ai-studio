@@ -556,7 +556,6 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
 
             <section className="faux-chat-panel">
               <div className="faux-chat-heading">
-                <span>▣</span>
                 <h2>Chat</h2>
                 <span className="faux-chat-filter">Top&nbsp;&nbsp; All</span>
               </div>
