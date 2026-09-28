@@ -26,6 +26,24 @@ function roundVoteCounts(viewerCount: number, leaderIndex: number, choiceCount: 
   return counts;
 }
 
+function shuffledVoteIndices(indices: number[], seedText: string, winnerIndex: number) {
+  let seed = Array.from(seedText).reduce(
+    (value, character) => Math.imul(value ^ character.charCodeAt(0), 16777619) >>> 0,
+    2166136261,
+  );
+  const shuffled = [...indices];
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    const swapIndex = seed % (index + 1);
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+  if (shuffled.length > 1 && shuffled[0] === winnerIndex) {
+    const swapIndex = 1 + (seed % (shuffled.length - 1));
+    [shuffled[0], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[0]];
+  }
+  return shuffled;
+}
+
 function ArrowLeftIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -350,9 +368,14 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
   const winningIndex = hasGeneratedStory
     ? sequentialNextIndex
     : voteCounts.indexOf(Math.max(...voteCounts));
-  const visibleVoteIndices = Array.from(
+  const voteCandidateIndices = Array.from(
     { length: Math.min(4, profile.choices.length) },
     (_, offset) => (sequentialNextIndex + offset) % profile.choices.length,
+  );
+  const visibleVoteIndices = shuffledVoteIndices(
+    voteCandidateIndices,
+    `${world.publicId}:${clipCycle}`,
+    sequentialNextIndex,
   );
   const visibleVotes = Math.max(1, visibleVoteIndices.reduce((sum, index) => sum + voteCounts[index], 0));
   const nextSegmentIndex = hasGeneratedStory ? sequentialNextIndex : (selectedVote ?? sequentialNextIndex);
@@ -433,7 +456,7 @@ export default function FauxWorldstreamPlayer({ world, worlds, onSelectWorld, on
         <button type="button" className="faux-back" onClick={onClose} aria-label="Back to Worldstreams"><ArrowLeftIcon /></button>
         <button type="button" className="faux-brand" onClick={onClose}>
           <img src="/brand/sequencer-mark.svg" alt="" />
-          <span>WORLDSTREAMS</span>
+          <span className="faux-brand-name">WORLDSTREAMS</span>
         </button>
         <div className="faux-header-title">
           <StreamAvatar world={resolvedWorld} small />
