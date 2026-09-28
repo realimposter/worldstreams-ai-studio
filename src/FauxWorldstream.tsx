@@ -183,7 +183,13 @@ function FauxFeed({
 
 function ChatMessage({ message }: { message: FauxChatMessage }) {
   if (message.system) {
-    return <div className="faux-chat-system"><img src="/brand/sequencer-mark.svg" alt="" /> {message.text}</div>;
+    return (
+      <div className="faux-chat-message faux-chat-system">
+        <img src="/brand/sequencer-mark.svg" alt="" />
+        <strong style={{ color: message.color }}>{message.name}:</strong>{' '}
+        <span>{message.text}</span>
+      </div>
+    );
   }
   return (
     <div className="faux-chat-message">

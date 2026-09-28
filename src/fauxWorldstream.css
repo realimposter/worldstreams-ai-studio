@@ -820,18 +820,22 @@
 }
 
 .faux-chat-system {
-  margin: 7px 0 10px;
-  padding: 8px 9px;
-  border: 1px solid rgba(255, 46, 136, .13);
-  border-radius: 6px;
-  color: rgba(255, 255, 255, .58);
-  background: rgba(255, 46, 136, .045);
-  font-size: 9px;
-  line-height: 1.35;
-  animation: faux-message 220ms ease both;
+  margin: 0 0 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  color: rgba(255, 255, 255, .74);
+  background: none;
+  font-size: 10px;
 }
 
-.faux-chat-system img { width: 11px; margin-right: 5px; vertical-align: -2px; }
+.faux-chat-system img {
+  width: 12px;
+  height: 12px;
+  margin-right: 4px;
+  object-fit: contain;
+  vertical-align: -3px;
+}
 
 .faux-reactions {
   position: relative;
